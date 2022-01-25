@@ -1,2 +1,2 @@
 # ApplePicking
-Apple Picking Software that guides the user to perform experiments in the lab
+Package to perform apple picking experiments with a UR5 robotic manipulator and a 3-finger underactuated gripper 
