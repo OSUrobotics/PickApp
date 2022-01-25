@@ -1,4 +1,5 @@
-# ApplePicking
+# PickApp
+Package to perform apple picking experiments with a UR5 robotic manipulator and a 3-finger underactuated gripper 
 
 ## Contact
 Alejandro Velasquez  
@@ -18,6 +19,3 @@ https://education.github.com/git-cheat-sheet-education.pdf
 
 MarkDown cheat-sheet  
 https://www.markdownguide.org/cheat-sheet/
-
-# PickApp
-Package to perform apple picking experiments with a UR5 robotic manipulator and a 3-finger underactuated gripper 
