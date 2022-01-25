@@ -1,8 +1,8 @@
 # ApplePicking
 
 ## Contact
-Alejandro Velasquez
-velasale@oregonstate.edu
+Alejandro Velasquez  
+velasale@oregonstate.edu  
 PhD Student in Robotics
 
 ## Description
@@ -10,8 +10,11 @@ Apple Picking Software that guides the user to perform experiments in the lab
 
 
 ## Tips
-Tips to write better functions
+Tips to write better functions  
 https://pybit.es/articles/writing-better-functions/
 
-Git cheatsheet
+Git cheat-sheet  
 https://education.github.com/git-cheat-sheet-education.pdf
+
+MarkDown cheat-sheet  
+https://www.markdownguide.org/cheat-sheet/
