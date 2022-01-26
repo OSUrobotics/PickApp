@@ -1,5 +1,5 @@
 """
-Script to join different csv files into a single one, so the data is not spread in many files but rahter in only one.
+Script to join different csv files into a single one, so the data is not spread in many files but rather in only one.
 This happens often in ROS, as there is always a csv per topic.
 
 Sources:
@@ -83,11 +83,3 @@ for i in range(1, 77):
 
         print(df)
         # input()
-
-
-
-
-
-
-
-

@@ -1,5 +1,5 @@
 """
-simple script to check that all the csv files have their respective data folder
+Check that all the csv files have their respective data folder
 """
 
 import os
