@@ -1,12 +1,18 @@
+"""
+Takes the data from the apple pick experiments and splits it in two halves: Grasp and Pick
+This is useful to:
+ - Get rid of the points sampled during the rest of the time (e.g. amidst labeling)
+ - Have the data split for grasp or pick analyses independently
+"""
+# @Time : 1/26/2022 11:09 AM
+# @Author : Alejandro Velasquez
+
+
 import os
 import pandas as pd
 import numpy as np
 import math
 from scipy.ndimage.filters import gaussian_filter, median_filter
-
-# Location in Box Folder (Alejo's laptop)
-# location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/Apple Proxy Picks/Winter 2022/1_data_valid_for_grasp_and_pick/'
-location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/Apple Proxy Picks/Winter 2022/2_data_valid_for_grasp/'
 
 
 def net_value(var_x, var_y, var_z):
@@ -110,6 +116,10 @@ def filter_variables(variables, parameter):
 
     return variables_filtered
 
+
+# Location in Box Folder (Alejo's laptop)
+# location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/Apple Proxy Picks/Winter 2022/1_data_valid_for_grasp_and_pick/'
+location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/Apple Proxy Picks/Winter 2022/2_data_valid_for_grasp/'
 
 for subfolder in sorted(os.listdir(location)):
 
@@ -279,8 +289,8 @@ for subfolder in sorted(os.listdir(location)):
                          joint_0_pos, joint_1_pos, joint_2_pos, joint_3_pos, joint_4_pos,
                          joint_5_pos]  # 8, 9, 10, 11, 12, 13
 
-        hand_variables = [f1_acc_x, f1_acc_y, f1_acc_z,      net_f1_acc,  #  1, 2, 3,          # 1,2, 3
-                          f2_acc_x, f2_acc_y, f2_acc_z,      net_f2_acc,  # 4, 5, 6, 7,        # 4, 5, 6
+        hand_variables = [f1_acc_x, f1_acc_y, f1_acc_z,      net_f1_acc,  #  1, 2, 3,
+                          f2_acc_x, f2_acc_y, f2_acc_z,      net_f2_acc,  # 4, 5, 6, 7,
                           f3_acc_x, f3_acc_y, f3_acc_z,      net_f3_acc,  # 8, 9, 10, 11,
                           f1_gyro_x, f1_gyro_y, f1_gyro_z,  # 12, 13, 14,
                           f2_gyro_x, f2_gyro_y, f2_gyro_z,  # 15, 16, 17,

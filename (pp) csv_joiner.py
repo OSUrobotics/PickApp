@@ -1,6 +1,8 @@
 """
 This code turns a time series data and transforms it into smaller chunks of data that can be used
 """
+# @Time : 1/26/2022 11:09 AM
+# @Author : Alejandro Velasquez
 
 # System related packages
 import os
@@ -49,7 +51,6 @@ def labeled_lists(location):
 original_location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/Apple Proxy Picks/Winter 2022/2_data_valid_for_grasp/'
 
 success_list, failed_list = labeled_lists(original_location)
-
 print('There are %i experiments with failed apple-picks' % len(failed_list))
 print('There are %i experiments with successful apple-picks' % len(success_list))
 

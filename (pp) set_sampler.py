@@ -1,3 +1,6 @@
+# @Time : 1/26/2022 11:09 AM
+# @Author : Alejandro Velasquez
+
 import os
 import random
 import shutil
@@ -14,11 +17,11 @@ for label in labels:
         print(coin)
 
         if coin < 0.701:
-            # Save in the training set subfolder
+            # Save file in the training set subfolder
             target = 'C:/Users/15416/PycharmProjects/PickApp/data_postprocess4 (train and test set)/training_set (70%)/'
 
         else:
-            # Save in the testing set subfolder
+            # Save file in the testing set subfolder
             target = 'C:/Users/15416/PycharmProjects/PickApp/data_postprocess4 (train and test set)/testing_set (30%)/'
 
         original = location + label + file
