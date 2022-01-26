@@ -16,6 +16,7 @@ import os
 # Not useful
 location = '/home/avl/PycharmProjects/AppleProxy/0_data_not useful/'
 
+location = 'D:/Apple Pick Data/Apple Proxy Picks/3 - Winter 2022/2_data_valid_for_grasp/'              # SSD
 
 all_files = list()
 all_dirs = list()
