@@ -9,8 +9,9 @@ from os.path import exists
 
 # location = '/home/avl/PycharmProjects/AppleProxy/bagfiles/w22_apple_proxy_picks/'       # Lab's Desktop
 # location = '/media/avl/StudyData/Apple Pick Data/Apple Proxy Picks/3 - Winter 22 picks/'  # SSD
-loc_A = '/home/avl/PycharmProjects/AppleProxy/1_data_valid_for_grasp_and_pick/'
-loc_B = '/home/avl/PycharmProjects/AppleProxy/2_data_valid_for_grasp/'
+# loc_A = '/home/avl/PycharmProjects/AppleProxy/1_data_valid_for_grasp_and_pick/'
+loc_A = 'D:/Apple Pick Data/Apple Proxy Picks/3 - Winter 2022/1_data_valid_for_grasp_and_pick/'     # SSD
+loc_B = 'D:/Apple Pick Data/Apple Proxy Picks/3 - Winter 2022/2_data_valid_for_grasp/'              # SSD
 
 
 def counter(location):
@@ -39,7 +40,7 @@ def counter(location):
                     for row in csv_reader:
                         rows.append(row)
 
-                    if rows[0][10] == 's':
+                    if rows[1][10] == 's':
                         success = success + 1
                     else:
                         failures = failures + 1
