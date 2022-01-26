@@ -9,6 +9,8 @@ PhD Student in Robotics
 ## Description
 Apple Picking Software that guides the user to perform experiments in the lab
 
+## File names
+(pp) means that file is used for post-processing data
 
 ## Tips
 Tips to write better functions  
