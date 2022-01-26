@@ -30,137 +30,6 @@ import seaborn as sns
 plt.close('all')
 
 
-def filter_variables(variables, parameter):
-    """
-    This function is meant to filter a list of lists, because usually these built-in functions don't do it
-    """
-    # Median Filter
-    variables_filtered = []
-    for i in range(len(variables)):
-        variable_filtered = median_filter(variables[i], parameter)
-        variables_filtered.append(variable_filtered)
-
-    # Gaussian Filer
-
-    return variables_filtered
-
-
-def net_value(var_x, var_y, var_z):
-    """
-    Obtain the net value of a vector, given the 3 components
-    :param var_x:
-    :param var_y:
-    :param var_z:
-    :return: net value
-    """
-    net = [None] * len(var_x)
-    for i in range(len(var_x)):
-        net[i] = math.sqrt(var_x[i] ** 2 + var_y[i] ** 2 + var_z[i] ** 2)
-    return net
-
-
-def elapsed_time(variable, time_stamp):
-    """
-    Simplifies the time axis, by subtracting the initial time.
-    This is useful because usually the time stamps are given in a long format (i.e. in the order of 1e9)
-    :param variable: Reference variable to obtain the size of the time array
-    :param time_stamp: The time stamp array that is going to be simplified
-    :return: Simplified time as Elapsed Time
-    """
-    elapsed = [None] * len(variable)
-    for i in range(len(variable)):
-        elapsed[i] = time_stamp[i] - time_stamp[0]
-    return elapsed
-
-
-def find_instance(array, time_array, threshold, initial_time, case='starts'):
-    """
-    There are also some events that are important to spot such as when the fingers start moving indeed
-    Since these are not published by the hand, we'll find those instances by finding the point at which the slope of any
-    of the joints changes
-    :param threshold:
-    :param array:
-    :param time_array:
-    :param initial_time: The time at which we start looking for the specific instant.
-    :param case: To make this function more general 'starts' is when movement starts, or 'stops' when it stops
-    :return: Time at which the variable goes above or below the threshold
-    """
-    # Step 1: Find the index of the initial time to start looking
-    # global i
-    for initial_time_index in range(len(time_array)):
-        if time_array[initial_time_index] > initial_time:
-            break
-
-    # try:
-    #     for i in range(initial_time_index, len(array)):
-    #         derivative = (array[i + 1] - array[i]) / (time_array[i + 1] - time_array[i])
-    #         # print('the derivative is: ', derivative)
-    #         if abs(derivative) < rate and case == 'stops':
-    #             # print('the derivative is: ', derivative)
-    #             # print('The time at which is starts changing is: ', time_array[i])
-    #             return i, time_array[i]
-    #             break
-    #         if abs(derivative) > rate and case == 'starts':
-    #             return i, time_array[i]
-    #             break
-
-    try:
-        for i in range(initial_time_index, len(array)):
-            if abs(array[i]) > threshold and case == 'starts':
-                break
-            elif abs(array[i]) < threshold and case == 'stops':
-                break
-
-        return i, time_array[i]
-
-    except KeyError or TypeError:
-        if case == 'starts':
-            return 1e6, 1e6  # just big numbers
-        else:
-            return 0, 0  # low numbers
-
-
-def plot_features(plt, a, b, c, d, e, f, g, h, x_min, x_max, title, label, sigma):
-    """
-    Add some common features into all the plots in order to ease their analysis, such as shaded areas and dashed lines
-    :param x_max:
-    :param x_min:
-    :param plt:
-    :param a: Time of the Open Hand Event
-    :param b: Time of the Close Hand Event
-    :param c: Time of the Pull Event
-    :param d: Time of the Open Hand Event at the end
-    :param e: Time of the Servos Start
-    :param f: Time of the Servos Stop
-    :param g: Time of the UR5 Start
-    :param h: Time of the UR5 Stop
-    :return:
-    """
-    plt.legend()
-    plt.xlim(x_min, x_max)
-    xmin, xmax, ymin, ymax = plt.axis()
-    plt.axvspan(a, b, color='y', alpha=0.3, lw=0)
-    plt.annotate('Open hand', (a, 0.95 * ymin))
-    plt.axvspan(b, c, color='b', alpha=0.3, lw=0)
-    plt.annotate('Close hand', (b, 0.95 * ymin))
-    plt.axvspan(c, d, color='r', alpha=0.3, lw=0)
-    plt.annotate('Pull', (c, 0.95 * ymin))
-    plt.axvspan(d, xmax, color='g', alpha=0.3, lw=0)
-    plt.annotate('Open hand', (d, 0.95 * ymin))
-    plt.axvline(x=e, color='k', linestyle='dashed')
-    plt.annotate('F1 Servo STARTS moving', (e, 0.85 * ymin))
-    plt.axvline(x=f, color='k', linestyle=(0, (5, 10)))
-    plt.annotate('F1 Servo STOPS moving', (f, 0.80 * ymin))
-    plt.axvline(x=g, color='k', linestyle='dotted')
-    plt.annotate('UR5e STARTS moving', (g, 0.85 * ymin))
-    plt.axvline(x=h, color='k', linestyle=(0, (1, 10)))
-    plt.annotate('UR5e STOPS moving', (h, 0.80 * ymin))
-    plt.annotate('sigma = ' + str(sigma), (xmin, ymax))
-    plt.xlabel('Elapsed time [sec]')
-    plt.title(title + ' ' + f'$\\bf{label}$')
-    plt.savefig('plots/' + title + '.png')
-
-
 def broken_axes(plot_number, axrray, time, variables, legends, e, f, g, h, title, y_label, label, y_lim_max, y_lim_min):
     """
     Creates a plot with two subplots and a break point in the x-axis. This is very useful when a plot is very long and
@@ -237,29 +106,18 @@ def broken_axes(plot_number, axrray, time, variables, legends, e, f, g, h, title
     # # plt.savefig('plots/' + title + ' ' + label + '.png')
 
 
-def look_at_labels(location, filename):
+def elapsed_time(variable, time_stamp):
     """
-    Looks for the csv file of the bagfile, in order to read the labels from the metadata
-    :param location:
-    :param prefix: the name of the file
-    :return:
+    Simplifies the time axis, by subtracting the initial time.
+    This is useful because usually the time stamps are given in a long format (i.e. in the order of 1e9)
+    :param variable: Reference variable to obtain the size of the time array
+    :param time_stamp: The time stamp array that is going to be simplified
+    :return: Simplified time as Elapsed Time
     """
-
-    # --- Open the file
-    with open(location + filename) as f:
-        reader = csv.reader(f)
-        data = list(reader)
-        # print('Result of Pick was: ', data[1][10])
-
-    # --- Redefine label
-    if data[1][10] == 's':
-        result = '(Successful-Pick)'
-    elif data[1][10] == 'f':
-        result = '(Failed-Pick)'
-    else:
-        result = 'heads up... something is wrong'
-
-    return result
+    elapsed = [None] * len(variable)
+    for i in range(len(variable)):
+        elapsed[i] = time_stamp[i] - time_stamp[0]
+    return elapsed
 
 
 def event_times(trial_events_elapsed_time, event_indexes, f1, f2, f3, arm):
@@ -399,6 +257,66 @@ def event_times(trial_events_elapsed_time, event_indexes, f1, f2, f3, arm):
     h = trial_events_elapsed_time[finish_pulling_apple_event_index]
 
     return a, b, c, d, e, f, g, h
+
+
+def filter_variables(variables, parameter):
+    """
+    This function is meant to filter a list of lists, because usually these built-in functions don't do it
+    """
+    # Median Filter
+    variables_filtered = []
+    for i in range(len(variables)):
+        variable_filtered = median_filter(variables[i], parameter)
+        variables_filtered.append(variable_filtered)
+
+    return variables_filtered
+
+
+def find_instance(array, time_array, threshold, initial_time, case='starts'):
+    """
+    There are also some events that are important to spot such as when the fingers start moving indeed
+    Since these are not published by the hand, we'll find those instances by finding the point at which the slope of any
+    of the joints changes
+    :param threshold:
+    :param array:
+    :param time_array:
+    :param initial_time: The time at which we start looking for the specific instant.
+    :param case: To make this function more general 'starts' is when movement starts, or 'stops' when it stops
+    :return: Time at which the variable goes above or below the threshold
+    """
+    # Step 1: Find the index of the initial time to start looking
+    # global i
+    for initial_time_index in range(len(time_array)):
+        if time_array[initial_time_index] > initial_time:
+            break
+
+    # try:
+    #     for i in range(initial_time_index, len(array)):
+    #         derivative = (array[i + 1] - array[i]) / (time_array[i + 1] - time_array[i])
+    #         # print('the derivative is: ', derivative)
+    #         if abs(derivative) < rate and case == 'stops':
+    #             # print('the derivative is: ', derivative)
+    #             # print('The time at which is starts changing is: ', time_array[i])
+    #             return i, time_array[i]
+    #             break
+    #         if abs(derivative) > rate and case == 'starts':
+    #             return i, time_array[i]
+    #             break
+
+    try:
+        for i in range(initial_time_index, len(array)):
+            if abs(array[i]) > threshold and case == 'starts':
+                break
+            elif abs(array[i]) < threshold and case == 'stops':
+                break
+
+        return i, time_array[i]
+
+    except KeyError or TypeError:
+        if case == 'starts':
+            return 1e6, 1e6  # just big numbers
+        else:
+            return 0, 0  # low numbers
 
 
 def generate_plots(location, bagfile, pdf_variable, plot_number, axrray, arm_filter_param=3, hand_filter_param=3):
@@ -817,6 +735,86 @@ def generate_plots(location, bagfile, pdf_variable, plot_number, axrray, arm_fil
                     e, f, g, h, title, 'Event', file_label, -1, 8)
 
     # plt.show()
+
+
+def look_at_labels(location, filename):
+    """
+    Looks for the csv file of the bagfile, in order to read the labels from the metadata
+    :param location:
+    :param prefix: the name of the file
+    :return:
+    """
+
+    # --- Open the file
+    with open(location + filename) as f:
+        reader = csv.reader(f)
+        data = list(reader)
+        # print('Result of Pick was: ', data[1][10])
+
+    # --- Redefine label
+    if data[1][10] == 's':
+        result = '(Successful-Pick)'
+    elif data[1][10] == 'f':
+        result = '(Failed-Pick)'
+    else:
+        result = 'heads up... something is wrong'
+
+    return result
+
+
+def net_value(var_x, var_y, var_z):
+    """
+    Obtain the net value of a vector, given the 3 components
+    :param var_x:
+    :param var_y:
+    :param var_z:
+    :return: net value
+    """
+    net = [None] * len(var_x)
+    for i in range(len(var_x)):
+        net[i] = math.sqrt(var_x[i] ** 2 + var_y[i] ** 2 + var_z[i] ** 2)
+    return net
+
+
+def plot_features(plt, a, b, c, d, e, f, g, h, x_min, x_max, title, label, sigma):
+    """
+    Add some common features into all the plots in order to ease their analysis, such as shaded areas and dashed lines
+    :param x_max:
+    :param x_min:
+    :param plt:
+    :param a: Time of the Open Hand Event
+    :param b: Time of the Close Hand Event
+    :param c: Time of the Pull Event
+    :param d: Time of the Open Hand Event at the end
+    :param e: Time of the Servos Start
+    :param f: Time of the Servos Stop
+    :param g: Time of the UR5 Start
+    :param h: Time of the UR5 Stop
+    :return:
+    """
+    plt.legend()
+    plt.xlim(x_min, x_max)
+    xmin, xmax, ymin, ymax = plt.axis()
+    plt.axvspan(a, b, color='y', alpha=0.3, lw=0)
+    plt.annotate('Open hand', (a, 0.95 * ymin))
+    plt.axvspan(b, c, color='b', alpha=0.3, lw=0)
+    plt.annotate('Close hand', (b, 0.95 * ymin))
+    plt.axvspan(c, d, color='r', alpha=0.3, lw=0)
+    plt.annotate('Pull', (c, 0.95 * ymin))
+    plt.axvspan(d, xmax, color='g', alpha=0.3, lw=0)
+    plt.annotate('Open hand', (d, 0.95 * ymin))
+    plt.axvline(x=e, color='k', linestyle='dashed')
+    plt.annotate('F1 Servo STARTS moving', (e, 0.85 * ymin))
+    plt.axvline(x=f, color='k', linestyle=(0, (5, 10)))
+    plt.annotate('F1 Servo STOPS moving', (f, 0.80 * ymin))
+    plt.axvline(x=g, color='k', linestyle='dotted')
+    plt.annotate('UR5e STARTS moving', (g, 0.85 * ymin))
+    plt.axvline(x=h, color='k', linestyle=(0, (1, 10)))
+    plt.annotate('UR5e STOPS moving', (h, 0.80 * ymin))
+    plt.annotate('sigma = ' + str(sigma), (xmin, ymax))
+    plt.xlabel('Elapsed time [sec]')
+    plt.title(title + ' ' + f'$\\bf{label}$')
+    plt.savefig('plots/' + title + '.png')
 
 
 if __name__ == '__main__':
