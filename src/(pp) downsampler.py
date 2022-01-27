@@ -22,8 +22,8 @@ for filename in os.listdir(location):
     print(filename)
 
     # ---- Step 0: Read csv data into an array -----
+    # Do not include the first column that has the time, so we don't overfit the next processes
     data = genfromtxt((location + filename), delimiter=',', skip_header=True)
-    # print(data)
 
     size = len(data) - 1
     print('\nThe initial number of point of the time series is: ', size)
@@ -49,7 +49,7 @@ for filename in os.listdir(location):
 
             # swipe all the columns
             values = []
-            for p in range(int(slice.size/window)):
+            for p in range(1, int(slice.size/window)):  # Start from 1 to avoid including time as a feature
                 value = st.mean(slice[:, p])
                 values.append(value)
 
@@ -57,7 +57,7 @@ for filename in os.listdir(location):
             byte.append(values)
 
         # Create the new data file
-        name = 'data_postprocess2 (only grasp _ down sampled)/' + filename[:-4] + '.csv'
+        name = 'C:/Users/15416/PycharmProjects/PickApp/data_postprocess2 (only grasp _ down sampled)/' + filename[:-4] + '.csv'
 
         with open(name, 'w', newline='') as f:
             write = csv.writer(f)

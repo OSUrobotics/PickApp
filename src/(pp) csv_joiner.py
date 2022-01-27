@@ -77,14 +77,13 @@ for pick in success_list:
 
     df = pd.concat([data_0, data_1, data_2, data_3, data_4, data_5, data_6], axis=1)
 
-    headers = ['wrench_time', 'force_x', 'force_y', 'force_z', 'net_force', 'torque_x', 'torque_y', 'torque_z',
-               'net_torque',
-               'f1_imu_time', 'f1_acc_x', 'f1_acc_y', 'f1_acc_z', 'f1_acc_net', 'f1_gyro_x', 'f1_gyro_y', 'f1_gyro_z',
-               'f1_states_time', 'f1_position', 'f1_speed', 'f1_effort',
-               'f2_imu_time', 'f2_acc_x', 'f2_acc_y', 'f2_acc_z', 'f2_acc_net', 'f2_gyro_x', 'f2_gyro_y', 'f2_gyro_z',
-               'f2_states_time', 'f2_position', 'f2_speed', 'f2_effort',
-               'f3_imu_time', 'f3_acc_x', 'f3_acc_y', 'f3_acc_z', 'f3_acc_net', 'f3_gyro_x', 'f3_gyro_y', 'f3_gyro_z',
-               'f3_states_time', 'f3_position', 'f3_speed', 'f3_effort'
+    headers = ['force_x', 'force_y', 'force_z', 'torque_x', 'torque_y', 'torque_z',
+               'f1_acc_x', 'f1_acc_y', 'f1_acc_z', 'f1_gyro_x', 'f1_gyro_y', 'f1_gyro_z',
+               'f1_position', 'f1_speed', 'f1_effort',
+               'f2_acc_x', 'f2_acc_y', 'f2_acc_z', 'f2_gyro_x', 'f2_gyro_y', 'f2_gyro_z',
+               'f2_position', 'f2_speed', 'f2_effort',
+               'f3_acc_x', 'f3_acc_y', 'f3_acc_z', 'f3_gyro_x', 'f3_gyro_y', 'f3_gyro_z',
+               'f3_position', 'f3_speed', 'f3_effort'
                ]
     df.columns = headers
 
@@ -116,14 +115,13 @@ for pick in failed_list:
 
     df = pd.concat([data_0, data_1, data_2, data_3, data_4, data_5, data_6], axis=1)
 
-    headers = ['wrench_time', 'force_x', 'force_y', 'force_z', 'net_force', 'torque_x', 'torque_y', 'torque_z',
-               'net_torque',
-               'f1_imu_time', 'f1_acc_x', 'f1_acc_y', 'f1_acc_z', 'f1_acc_net', 'f1_gyro_x', 'f1_gyro_y', 'f1_gyro_z',
-               'f1_states_time', 'f1_position', 'f1_speed', 'f1_effort',
-               'f2_imu_time', 'f2_acc_x', 'f2_acc_y', 'f2_acc_z', 'f2_acc_net', 'f2_gyro_x', 'f2_gyro_y', 'f2_gyro_z',
-               'f2_states_time', 'f2_position', 'f2_speed', 'f2_effort',
-               'f3_imu_time', 'f3_acc_x', 'f3_acc_y', 'f3_acc_z', 'f3_acc_net', 'f3_gyro_x', 'f3_gyro_y', 'f3_gyro_z',
-               'f3_states_time', 'f3_position', 'f3_speed', 'f3_effort'
+    headers = ['force_x', 'force_y', 'force_z', 'torque_x', 'torque_y', 'torque_z',
+               'f1_acc_x', 'f1_acc_y', 'f1_acc_z', 'f1_gyro_x', 'f1_gyro_y', 'f1_gyro_z',
+               'f1_position', 'f1_speed', 'f1_effort',
+               'f2_acc_x', 'f2_acc_y', 'f2_acc_z', 'f2_gyro_x', 'f2_gyro_y', 'f2_gyro_z',
+               'f2_position', 'f2_speed', 'f2_effort',
+               'f3_acc_x', 'f3_acc_y', 'f3_acc_z', 'f3_gyro_x', 'f3_gyro_y', 'f3_gyro_z',
+               'f3_position', 'f3_speed', 'f3_effort'
                ]
     df.columns = headers
 
