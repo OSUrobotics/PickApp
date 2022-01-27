@@ -9,6 +9,8 @@ PhD Student in Robotics
 ## Description
 Apple Picking Software that guides the user to perform experiments in the lab
 
+(pp) = data post-processing scripts  
+(cl) = machine learning classifier scripts
 
 ## Tips
 Tips to write better functions  
