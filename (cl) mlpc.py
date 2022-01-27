@@ -22,7 +22,7 @@ import pandas as pd
 # Parameters
 experiments = 10
 # Features = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-Features = [4]
+Features = [2]
 
 
 
@@ -78,11 +78,12 @@ for n_features in Features:
     # y_test = scaler.transform(y_test)
 
     results = []
+    max_acc = 0
     for i in tqdm(range(experiments)):
         # ---------------------------------- Step 3: Train and Test the classifier -------------------------------------
         # Train Random Forest Classifier
         # clf = RandomForestClassifier(n_estimators=300, max_depth=15, random_state=None)
-        clf = MLPClassifier(solver='adam', random_state=None, max_iter=5000)
+        clf = MLPClassifier(solver='adam', random_state=None, max_iter=10000, hidden_layer_sizes= 1000)
         # clf = NearestCentroid()
         # clf = SGDClassifier(loss="hinge", penalty="l2", max_iter=5)
         clf.fit(X_train, y_train)
@@ -112,15 +113,20 @@ for n_features in Features:
                     false_negatives += 1
 
         result = performance / len(X_test)
-        print("\nClassifier: Multi Layer Perceptron")
-        print("Parameters: %i Autoencoder features" % n_features)
-        print("Accuracy: %.2f" % result)
-        print("Confusion Matrix")
-        print("                  Reference      ")
-        print("Prediction    Success     Failure")
-        print("   Success       %i          %i" % (true_positives, false_positives))
-        print("   Failure       %i          %i" % (false_negatives, true_negatives))
-        print('\n')
+
+        # Only print the best Accuracy so far
+        if result > max_acc:
+            max_acc = result
+            print("\nSo far the best has been:")
+            print("\nClassifier: Multi Layer Perceptron")
+            print("Parameters: %i Autoencoder features" % n_features)
+            print("Accuracy: %.2f" % result)
+            print("Confusion Matrix")
+            print("                  Reference      ")
+            print("Prediction    Success     Failure")
+            print("   Success       %i          %i" % (true_positives, false_positives))
+            print("   Failure       %i          %i" % (false_negatives, true_negatives))
+            print('\n')
 
         # Append results for statistics
         results.append(result)
