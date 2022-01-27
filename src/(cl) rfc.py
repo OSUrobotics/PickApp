@@ -17,7 +17,6 @@ import pandas as pd
 
 
 # Parameters
-n_features = 2
 experiments = 10
 maxdepth = 10
 
@@ -26,7 +25,7 @@ maxdepth = 10
 location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/Apple Proxy Picks/Winter 2022/grasp_classifer_data/'
 subfolder = 'Autoencoders/Two Features/'
 
-experiment = 'Auto_2feat'
+experiment = 'RFC with 2 Autoencoder features'
 
 
 pck_X_train = location + subfolder + 'Autoencoder 2 Training Inputs' + '.pickle'
@@ -39,6 +38,8 @@ y_train = pd.read_pickle(pck_y_train)
 pck_y_test = location + subfolder + 'outputs_test' + '.pickle'
 y_test = pd.read_pickle(pck_y_test)
 
+# print(y_train)
+
 # Scale the data
 scaler = MinMaxScaler()
 
@@ -49,13 +50,14 @@ X_test = scaler.transform(X_test)
 
 
 data = []
-for depth in range(1, maxdepth + 1):
+for depth in range(1, maxdepth + 1, 2):
 
     results = []
+    max_acc = 0
     for i in tqdm(range(experiments)):
         # ---------------------------------- Step 3: Train and Test the classifier -------------------------------------
         # Train Random Forest Classifier
-        clf = RandomForestClassifier(n_estimators=500, max_depth=depth, random_state=None)
+        clf = RandomForestClassifier(n_estimators=1000, max_depth=depth, random_state=None)
         clf.fit(X_train, y_train)
 
         # Test it!
@@ -83,15 +85,20 @@ for depth in range(1, maxdepth + 1):
                     false_negatives += 1
 
         result = performance / len(X_test)
-        # print("\nClassifier: Random Forest")
-        # print("Parameters: %i tsfresh features" % n_features)
-        # print("Accuracy: %.2f" % result)
-        # print("Confusion Matrix")
-        # print("                  Reference      ")
-        # print("Prediction    Success     Failure")
-        # print("   Success       %i          %i" % (true_positives, false_positives))
-        # print("   Failure       %i          %i" % (false_negatives, true_negatives))
-        # print('\n')
+
+        # Only print the best Accuracy so far
+        if result > max_acc:
+            max_acc = result
+            print("\nSo far the best has been:")
+            print("\nClassifier: Random Forest")
+            # print("Parameters: %i tsfresh features" % n_features)
+            print("Accuracy: %.2f" % result)
+            print("Confusion Matrix")
+            print("                  Reference      ")
+            print("Prediction    Success     Failure")
+            print("   Success       %i          %i" % (true_positives, false_positives))
+            print("   Failure       %i          %i" % (false_negatives, true_negatives))
+            print('\n')
 
         # Append results for statistics
         results.append(result)
@@ -107,7 +114,7 @@ ax.boxplot(data)
 plt.ylabel('Accuracy')
 plt.xlabel('Random Forest Depth')
 plt.grid()
-plt.title('RFC + Autoencoder + %s (%i experiments, %i features)' % (experiment, experiments, n_features))
+plt.title('%s + %i experiments)' % (experiment, experiments))
 plt.ylim([0, 1])
 plt.show()
 
