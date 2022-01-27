@@ -38,7 +38,7 @@ y_train = pd.read_pickle(pck_y_train)
 pck_y_test = location + subfolder + 'outputs_test' + '.pickle'
 y_test = pd.read_pickle(pck_y_test)
 
-print(y_train)
+# print(y_train)
 
 # Scale the data
 scaler = MinMaxScaler()
@@ -89,6 +89,7 @@ for depth in range(1, maxdepth + 1, 2):
         # Only print the best Accuracy so far
         if result > max_acc:
             max_acc = result
+            print("\nSo far the best has been:")
             print("\nClassifier: Random Forest")
             # print("Parameters: %i tsfresh features" % n_features)
             print("Accuracy: %.2f" % result)

@@ -10,7 +10,7 @@ from os.path import exists
 
 
 # Step 1 --- Read the csv file with all the angles from the real-apple picks [Hand-Stem, Stem-Gravity, Hand-gravity]
-file = 'data/real_picks_angles_yaw.csv'
+file = '../data/real_picks_angles_yaw.csv'
 
 # Save it as a list
 with open(file, newline='') as f:

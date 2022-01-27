@@ -17,11 +17,11 @@ for label in labels:
         print(coin)
 
         if coin < 0.701:
-            # Save file in the training set subfolder
+            # Save file in the training set sub-folder
             target = 'C:/Users/15416/PycharmProjects/PickApp/data_postprocess4 (train and test set)/training_set (70%)/'
 
         else:
-            # Save file in the testing set subfolder
+            # Save file in the testing set sub-folder
             target = 'C:/Users/15416/PycharmProjects/PickApp/data_postprocess4 (train and test set)/testing_set (30%)/'
 
         original = location + label + file
