@@ -108,6 +108,8 @@ for depth in range(1, maxdepth + 1, 2):
             print('\n')
 
         # Confusion Matrix from Scikit-Learn
+        # Be aware that in this case the matrix columns are predictions, and rows are actual values
+        # https://towardsdatascience.com/understanding-the-confusion-matrix-from-scikit-learn-c51d88929c79
         matrix = confusion_matrix(y_test, predictions, labels=[1, 0])
         report = classification_report(y_test, predictions, labels=[1, 0])
         print("--- Scikit results ---")
