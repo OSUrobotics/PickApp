@@ -9,6 +9,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.datasets import make_classification
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.metrics import confusion_matrix, classification_report
 # Visualization related packages
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -54,6 +55,7 @@ for depth in range(1, maxdepth + 1, 2):
 
     results = []
     max_acc = 0
+
     for i in tqdm(range(experiments)):
         # ---------------------------------- Step 3: Train and Test the classifier -------------------------------------
         # Train Random Forest Classifier
@@ -66,12 +68,16 @@ for depth in range(1, maxdepth + 1, 2):
         false_positives = 0
         false_negatives = 0
         true_negatives = 0
+        predictions = []
+
         for j, k in zip(X_test, y_test):
             grasp_prediction = clf.predict([j])
             # print(grasp_prediction)
 
+            predictions.append(grasp_prediction)
+
             if grasp_prediction == k:
-                # print("yeahh")
+                # Good Predictions
                 performance += 1
 
                 if grasp_prediction == 1:
@@ -79,6 +85,7 @@ for depth in range(1, maxdepth + 1, 2):
                 else:
                     true_negatives += 1
             else:
+                # Bad Predictions
                 if grasp_prediction == 1:
                     false_positives += 1
                 else:
@@ -100,6 +107,13 @@ for depth in range(1, maxdepth + 1, 2):
             print("   Failure       %i          %i" % (false_negatives, true_negatives))
             print('\n')
 
+        # Confusion Matrix from Scikit-Learn
+        matrix = confusion_matrix(y_test, predictions, labels=[1, 0])
+        report = classification_report(y_test, predictions, labels=[1, 0])
+        print("--- Scikit results ---")
+        print('Confusion Matrix: \n', matrix)
+        print('Classification Report: \n', report)
+
         # Append results for statistics
         results.append(result)
 
@@ -107,7 +121,6 @@ for depth in range(1, maxdepth + 1, 2):
     mean = np.mean(results)
     st_dev = np.std(results)
     data.append(results)
-
 
 fig, ax = plt.subplots()
 ax.boxplot(data)
