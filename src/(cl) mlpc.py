@@ -21,28 +21,28 @@ import pandas as pd
 
 # Parameters
 experiments = 10
-# Features = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-Features = [2]
-
+Features = [2, 4, 8, 16, 32]
 
 
 data = []
 for n_features in Features:
     # ------------------------------------- Step 1: Load the Features --------------------------------------------------
     # --- Autoencoder Features ---
-    location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/Apple Proxy Picks/Winter 2022/grasp_classifer_data/'
-    subfolder = 'Autoencoders/Two Features/'
+    # Autoencoder Features (from pickle Files)
+    location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/' \
+               '/Apple Proxy Picks/Winter 2022/grasp_classifer_data/Autoencoders/'
+    subfolder = 'Set 4/'
+    features = n_features
+    experiment = 'MLPC with ' + str(features) + 'Autoencoder features'
 
-    experiment = 'MLPC with 2 Autoencoder features'
-
-    pck_X_train = location + subfolder + 'Autoencoder 2 Training Inputs' + '.pickle'
+    pck_X_train = location + subfolder + 'Autoencoder Set 4 ' + str(features) + ' Training Inputs.pickle'
     X_train = pd.read_pickle(pck_X_train)
-    pck_X_test = location + subfolder + 'Autoencoder 2 Testing Inputs' + '.pickle'
+    pck_X_test = location + subfolder + 'Autoencoder Set 4 ' + str(features) + ' Testing Inputs.pickle'
     X_test = pd.read_pickle(pck_X_test)
 
-    pck_y_train = location + subfolder + 'outputs_train' + '.pickle'
+    pck_y_train = location + subfolder + 'outputs_Set4_train.pickle'
     y_train = pd.read_pickle(pck_y_train)
-    pck_y_test = location + subfolder + 'outputs_test' + '.pickle'
+    pck_y_test = location + subfolder + 'outputs_Set4_test.pickle'
     y_test = pd.read_pickle(pck_y_test)
 
     # # --- ts-fresh features ---

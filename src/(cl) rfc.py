@@ -23,20 +23,22 @@ maxdepth = 10
 
 
 # Autoencoder Features (from pickle Files)
-location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/Apple Proxy Picks/Winter 2022/grasp_classifer_data/'
-subfolder = 'Autoencoders/Two Features/'
+location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/' \
+            '/Apple Proxy Picks/Winter 2022/grasp_classifer_data/Autoencoders/'
+subfolder = 'Set 1/'
+features = 32
 
-experiment = 'RFC with 2 Autoencoder features'
+experiment = 'RFC with ' + str(features) + 'Autoencoder features'
 
 
-pck_X_train = location + subfolder + 'Autoencoder 2 Training Inputs' + '.pickle'
+pck_X_train = location + subfolder + 'Autoencoder Set 1 ' + str(features) + ' Training Inputs.pickle'
 X_train = pd.read_pickle(pck_X_train)
-pck_X_test = location + subfolder + 'Autoencoder 2 Testing Inputs' + '.pickle'
+pck_X_test = location + subfolder + 'Autoencoder Set 1 ' + str(features) + ' Testing Inputs.pickle'
 X_test = pd.read_pickle(pck_X_test)
 
-pck_y_train = location + subfolder + 'outputs_train' + '.pickle'
+pck_y_train = location + subfolder + 'outputs_Set1_train.pickle'
 y_train = pd.read_pickle(pck_y_train)
-pck_y_test = location + subfolder + 'outputs_test' + '.pickle'
+pck_y_test = location + subfolder + 'outputs_Set1_test.pickle'
 y_test = pd.read_pickle(pck_y_test)
 
 # print(y_train)
