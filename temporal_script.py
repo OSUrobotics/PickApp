@@ -12,11 +12,7 @@ import tqdm
 from numpy import genfromtxt
 
 
-if __name__ == "__main__":
-
-    # Load data
-    location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/improved data/grasp/Data_with_33_cols/postprocess_4_for_tsfresh/'
-
+def get_features(location):
     # Read the example from ts-fresh
     # timeseries = pd.read_csv(location + 'example_x.csv')
     # y = pd.read_csv(location + 'example_y.csv', index_col=0, squeeze=True)
@@ -48,5 +44,65 @@ if __name__ == "__main__":
 
     X_filtered.to_csv(location + 'features.csv')
 
-    # features_filtered_direct = extract_relevant_features(timeseries, y, column_id='id', column_sort='time')
-    # print(features_filtered_direct)
+    return X_filtered
+
+
+def best_features(features):
+    """
+    Obtains the first feature of each variable
+    :param features: features extracted with ts-fresh
+    :return: Columns that contain the first feature of each variable
+    """
+    variables_checked = []
+    variable_and_features = []
+    cols = []
+    col = 0
+
+    for i in list(features.columns.values):
+
+        variable = str(i)
+        end = variable.find('__')  # Every feature starts with double __
+        variable = variable[:end]
+        print(variable)
+
+        if not variable in variables_checked:
+            cols.append(col)
+            variables_checked.append(variable)
+            variable_and_features.append(i)
+
+        col += 1
+
+    print(variable_and_features)
+    print(variables_checked)
+    print(cols)
+
+    return cols
+
+
+def create_list(location, features, cols):
+    hope = pd.DataFrame()
+    s = 0
+    for col in cols:
+        feature = features.iloc[:, col]
+        hope[s] = feature
+        # print(feature)
+        s += 1
+
+    print(hope)
+    hope.to_csv(location + 'best_features.csv', index=False)
+
+
+if __name__ == "__main__":
+    # Load data
+    location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/improved data/grasp/Data_with_33_cols/postprocess_4_for_tsfresh/'
+
+    # Obtain the filtered features
+    # features = get_features(location)
+
+    # Leave only the most important features
+    features = pd.read_csv(location + 'features.csv')
+    # print(features)
+
+    columns = best_features(features)
+
+    create_list(location, features, columns)

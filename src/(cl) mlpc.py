@@ -25,45 +25,46 @@ Features = [2, 4, 8, 16, 32]
 
 
 data = []
-for n_features in Features:
+for n_features in range(1, 32):
     # ------------------------------------- Step 1: Load the Features --------------------------------------------------
     # --- Autoencoder Features ---
     # Autoencoder Features (from pickle Files)
-    location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/' \
-               '/Apple Proxy Picks/Winter 2022/grasp_classifer_data/Autoencoders/'
-    subfolder = 'Set 4/'
-    features = n_features
-    experiment = 'MLPC with ' + str(features) + 'Autoencoder features'
+    # location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/' \
+    #            '/Apple Proxy Picks/Winter 2022/grasp_classifer_data/Autoencoders/'
+    # subfolder = 'Set 4/'
+    # features = n_features
+    # experiment = 'MLPC with ' + str(features) + 'Autoencoder features'
+    #
+    # pck_X_train = location + subfolder + 'Autoencoder Set 4 ' + str(features) + ' Training Inputs.pickle'
+    # X_train = pd.read_pickle(pck_X_train)
+    # pck_X_test = location + subfolder + 'Autoencoder Set 4 ' + str(features) + ' Testing Inputs.pickle'
+    # X_test = pd.read_pickle(pck_X_test)
+    #
+    # pck_y_train = location + subfolder + 'outputs_Set4_train.pickle'
+    # y_train = pd.read_pickle(pck_y_train)
+    # pck_y_test = location + subfolder + 'outputs_Set4_test.pickle'
+    # y_test = pd.read_pickle(pck_y_test)
 
-    pck_X_train = location + subfolder + 'Autoencoder Set 4 ' + str(features) + ' Training Inputs.pickle'
-    X_train = pd.read_pickle(pck_X_train)
-    pck_X_test = location + subfolder + 'Autoencoder Set 4 ' + str(features) + ' Testing Inputs.pickle'
-    X_test = pd.read_pickle(pck_X_test)
-
-    pck_y_train = location + subfolder + 'outputs_Set4_train.pickle'
-    y_train = pd.read_pickle(pck_y_train)
-    pck_y_test = location + subfolder + 'outputs_Set4_test.pickle'
-    y_test = pd.read_pickle(pck_y_test)
-
-    # # --- ts-fresh features ---
+    # --- ts-fresh features ---
+    location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/improved data/grasp/Data_with_33_cols/postprocess_4_for_tsfresh/'
     # location = '/home/avl/PycharmProjects/AppleProxy/Features/real dataset/'
-    # experiment = 'real dataset x5'
-    #
-    # # Train data
-    # train = '5x_data_train.csv'
-    # train_data = pd.read_csv(location + train)
-    # train_array = train_data.to_numpy()
-    #
-    # # Test data
-    # test = '5x_data_test.csv'
-    # test_data = pd.read_csv(location + test)
-    # test_array = test_data.to_numpy()
-    #
-    # X_train = train_array[:, 1:(n_features + 1)]
-    # y_train = train_array[:, -1]
-    #
-    # X_test = test_array[:, 1:(n_features + 1)]
-    # y_test = test_array[:, -1]
+    experiment = 'MLPC with ' + 'TS-fresh features'
+
+    # Train data
+    train = 'best_features_TRAIN.csv'
+    train_data = pd.read_csv(location + train)
+    train_array = train_data.to_numpy()
+
+    # Test data
+    test = 'best_features_TEST.csv'
+    test_data = pd.read_csv(location + test)
+    test_array = test_data.to_numpy()
+
+    X_train = train_array[:, 1:(n_features + 1)]
+    y_train = train_array[:, -1]
+
+    X_test = test_array[:, 1:(n_features + 1)]
+    y_test = test_array[:, -1]
 
     # Scale the data
     scaler = MinMaxScaler()
@@ -83,7 +84,7 @@ for n_features in Features:
         # ---------------------------------- Step 3: Train and Test the classifier -------------------------------------
         # Train Random Forest Classifier
         # clf = RandomForestClassifier(n_estimators=300, max_depth=15, random_state=None)
-        clf = MLPClassifier(solver='adam', random_state=None, max_iter=10000, hidden_layer_sizes= 1000)
+        clf = MLPClassifier(solver='adam', random_state=None, max_iter=3000, hidden_layer_sizes=50)
         # clf = NearestCentroid()
         # clf = SGDClassifier(loss="hinge", penalty="l2", max_iter=5)
         clf.fit(X_train, y_train)

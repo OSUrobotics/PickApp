@@ -19,27 +19,46 @@ import pandas as pd
 
 # Parameters
 experiments = 10
-maxdepth = 10
+maxdepth = 20
+n_features = 30
 
+# # Autoencoder Features (from pickle Files)
+# location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/' \
+#             '/Apple Proxy Picks/Winter 2022/grasp_classifer_data/Autoencoders/'
+# subfolder = 'Set 1/'
+# features = 32
+# experiment = 'RFC with ' + str(features) + 'Autoencoder features'
+#
+# pck_X_train = location + subfolder + 'Autoencoder Set 1 ' + str(features) + ' Training Inputs.pickle'
+# X_train = pd.read_pickle(pck_X_train)
+# pck_X_test = location + subfolder + 'Autoencoder Set 1 ' + str(features) + ' Testing Inputs.pickle'
+# X_test = pd.read_pickle(pck_X_test)
+#
+# pck_y_train = location + subfolder + 'outputs_Set1_train.pickle'
+# y_train = pd.read_pickle(pck_y_train)
+# pck_y_test = location + subfolder + 'outputs_Set1_test.pickle'
+# y_test = pd.read_pickle(pck_y_test)
 
-# Autoencoder Features (from pickle Files)
-location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/' \
-            '/Apple Proxy Picks/Winter 2022/grasp_classifer_data/Autoencoders/'
-subfolder = 'Set 1/'
-features = 32
+# --- ts-fresh features ---
+location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/improved data/grasp/Data_with_33_cols/postprocess_4_for_tsfresh/'
+# location = '/home/avl/PycharmProjects/AppleProxy/Features/real dataset/'
+experiment = 'RFC with ' + 'TS-fresh features'
 
-experiment = 'RFC with ' + str(features) + 'Autoencoder features'
+# Train data
+train = 'best_features_TRAIN.csv'
+train_data = pd.read_csv(location + train)
+train_array = train_data.to_numpy()
 
+# Test data
+test = 'best_features_TEST.csv'
+test_data = pd.read_csv(location + test)
+test_array = test_data.to_numpy()
 
-pck_X_train = location + subfolder + 'Autoencoder Set 1 ' + str(features) + ' Training Inputs.pickle'
-X_train = pd.read_pickle(pck_X_train)
-pck_X_test = location + subfolder + 'Autoencoder Set 1 ' + str(features) + ' Testing Inputs.pickle'
-X_test = pd.read_pickle(pck_X_test)
+X_train = train_array[:, 1:(n_features + 1)]
+y_train = train_array[:, -1]
 
-pck_y_train = location + subfolder + 'outputs_Set1_train.pickle'
-y_train = pd.read_pickle(pck_y_train)
-pck_y_test = location + subfolder + 'outputs_Set1_test.pickle'
-y_test = pd.read_pickle(pck_y_test)
+X_test = test_array[:, 1:(n_features + 1)]
+y_test = test_array[:, -1]
 
 # print(y_train)
 

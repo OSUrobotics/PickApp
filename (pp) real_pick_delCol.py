@@ -21,15 +21,16 @@ maxdepth = 10
 
 # Autoencoder Features (from pickle Files)
 # Location of the Real-Apple data already split and downsampled
-location = 'C:/Users/15416/PycharmProjects\PickApp\data\Real Apples Data/real_data_stage1/'
+# location = 'C:/Users/15416/PycharmProjects\PickApp\data\Real Apples Data/real_data_stage1/'
+location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/4_proxy_winter22_x5/PICK/pp1_split_x45cols/'
 
 # First delete the columns
 for filename in sorted(os.listdir(location)):
     # print(filename)
 
     name = str(filename)
-    var = name[-7]
-    # print(var)
+    var = name[-5]
+    print(var)
 
 
 
@@ -38,61 +39,47 @@ for filename in sorted(os.listdir(location)):
         # These are WRENCH files, from which we'll delete columns 4 and 8
         print(filename)
 
-        if name[-14] == 'k':
-            subfolder = 'pick/'
-        else:
-            subfolder = 'grasp/'
-
-
         with open(location + filename, "r") as source:
             reader = csv.reader(source)
 
             new_name = name
-            target_location = 'C:/Users/15416/PycharmProjects\PickApp\data\Real Apples Data/improved data/'
+            target_location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/4_proxy_winter22_x5/PICK/pp1_split/'
+                              # ''C:/Users/15416/PycharmProjects\PickApp\data\Real Apples Data/improved data/'
 
-            with open(target_location + subfolder + new_name, "w", newline='') as result:
+            with open(target_location + new_name, "w", newline='') as result:
                 writer = csv.writer(result)
                 for r in reader:
                     # writer.writerow((r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]))
-                    writer.writerow((r[0], r[1], r[2], r[3], r[5], r[6], r[7]))
+                    writer.writerow((r[1], r[2], r[3], r[4], r[5], r[6]))
 
     if var == "u":
         # These are IMU files, from which we'll delete columns 4 and 8
         print(filename)
 
-        if name[-14] == 'k':
-            subfolder = 'pick/'
-        else:
-            subfolder = 'grasp/'
 
         with open(location + filename, "r") as source:
             reader = csv.reader(source)
 
             new_name = name
-            target_location = 'C:/Users/15416/PycharmProjects\PickApp\data\Real Apples Data/improved data/'
+            target_location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/4_proxy_winter22_x5/PICK/pp1_split/'
 
-            with open(target_location + subfolder + new_name, "w", newline='') as result:
+            with open(target_location + new_name, "w", newline='') as result:
                 writer = csv.writer(result)
                 for r in reader:
                     # writer.writerow((r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7]))
-                    writer.writerow((r[1], r[2], r[3], r[5], r[6], r[7]))
+                    writer.writerow((r[1], r[2], r[3], r[4], r[5], r[6]))
 
     if var == "s":
         # These are JOIN STATES files, from which we'll delete columns 4 and 8
         print(filename)
 
-        if name[-17] == 'k':
-            subfolder = 'pick/'
-        else:
-            subfolder = 'grasp/'
-
         with open(location + filename, "r") as source:
             reader = csv.reader(source)
 
             new_name = name
-            target_location = 'C:/Users/15416/PycharmProjects\PickApp\data\Real Apples Data/improved data/'
+            target_location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/4_proxy_winter22_x5/PICK/pp1_split/'
 
-            with open(target_location + subfolder + new_name, "w", newline='') as result:
+            with open(target_location + new_name, "w", newline='') as result:
                 writer = csv.writer(result)
                 for r in reader:
                     # writer.writerow((r[0], r[1], r[2], r[3]))
