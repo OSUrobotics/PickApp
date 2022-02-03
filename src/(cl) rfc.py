@@ -9,6 +9,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.datasets import make_classification
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.metrics import confusion_matrix, classification_report
 # Visualization related packages
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -18,25 +19,46 @@ import pandas as pd
 
 # Parameters
 experiments = 10
-maxdepth = 10
+maxdepth = 20
+n_features = 30
 
+# # Autoencoder Features (from pickle Files)
+# location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/' \
+#             '/Apple Proxy Picks/Winter 2022/grasp_classifer_data/Autoencoders/'
+# subfolder = 'Set 1/'
+# features = 32
+# experiment = 'RFC with ' + str(features) + 'Autoencoder features'
+#
+# pck_X_train = location + subfolder + 'Autoencoder Set 1 ' + str(features) + ' Training Inputs.pickle'
+# X_train = pd.read_pickle(pck_X_train)
+# pck_X_test = location + subfolder + 'Autoencoder Set 1 ' + str(features) + ' Testing Inputs.pickle'
+# X_test = pd.read_pickle(pck_X_test)
+#
+# pck_y_train = location + subfolder + 'outputs_Set1_train.pickle'
+# y_train = pd.read_pickle(pck_y_train)
+# pck_y_test = location + subfolder + 'outputs_Set1_test.pickle'
+# y_test = pd.read_pickle(pck_y_test)
 
-# Autoencoder Features (from pickle Files)
-location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/Apple Proxy Picks/Winter 2022/grasp_classifer_data/'
-subfolder = 'Autoencoders/Two Features/'
+# --- ts-fresh features ---
+location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/improved data/grasp/Data_with_33_cols/postprocess_4_for_tsfresh/'
+# location = '/home/avl/PycharmProjects/AppleProxy/Features/real dataset/'
+experiment = 'RFC with ' + 'TS-fresh features'
 
-experiment = 'RFC with 2 Autoencoder features'
+# Train data
+train = 'best_features_TRAIN.csv'
+train_data = pd.read_csv(location + train)
+train_array = train_data.to_numpy()
 
+# Test data
+test = 'best_features_TEST.csv'
+test_data = pd.read_csv(location + test)
+test_array = test_data.to_numpy()
 
-pck_X_train = location + subfolder + 'Autoencoder 2 Training Inputs' + '.pickle'
-X_train = pd.read_pickle(pck_X_train)
-pck_X_test = location + subfolder + 'Autoencoder 2 Testing Inputs' + '.pickle'
-X_test = pd.read_pickle(pck_X_test)
+X_train = train_array[:, 1:(n_features + 1)]
+y_train = train_array[:, -1]
 
-pck_y_train = location + subfolder + 'outputs_train' + '.pickle'
-y_train = pd.read_pickle(pck_y_train)
-pck_y_test = location + subfolder + 'outputs_test' + '.pickle'
-y_test = pd.read_pickle(pck_y_test)
+X_test = test_array[:, 1:(n_features + 1)]
+y_test = test_array[:, -1]
 
 # print(y_train)
 
@@ -54,6 +76,7 @@ for depth in range(1, maxdepth + 1, 2):
 
     results = []
     max_acc = 0
+
     for i in tqdm(range(experiments)):
         # ---------------------------------- Step 3: Train and Test the classifier -------------------------------------
         # Train Random Forest Classifier
@@ -66,12 +89,16 @@ for depth in range(1, maxdepth + 1, 2):
         false_positives = 0
         false_negatives = 0
         true_negatives = 0
+        predictions = []
+
         for j, k in zip(X_test, y_test):
             grasp_prediction = clf.predict([j])
             # print(grasp_prediction)
 
+            predictions.append(grasp_prediction)
+
             if grasp_prediction == k:
-                # print("yeahh")
+                # Good Predictions
                 performance += 1
 
                 if grasp_prediction == 1:
@@ -79,6 +106,7 @@ for depth in range(1, maxdepth + 1, 2):
                 else:
                     true_negatives += 1
             else:
+                # Bad Predictions
                 if grasp_prediction == 1:
                     false_positives += 1
                 else:
@@ -100,6 +128,15 @@ for depth in range(1, maxdepth + 1, 2):
             print("   Failure       %i          %i" % (false_negatives, true_negatives))
             print('\n')
 
+        # Confusion Matrix from Scikit-Learn
+        # Be aware that in this case the matrix columns are predictions, and rows are actual values
+        # https://towardsdatascience.com/understanding-the-confusion-matrix-from-scikit-learn-c51d88929c79
+        matrix = confusion_matrix(y_test, predictions, labels=[1, 0])
+        report = classification_report(y_test, predictions, labels=[1, 0])
+        print("--- Scikit results ---")
+        print('Confusion Matrix: \n', matrix)
+        print('Classification Report: \n', report)
+
         # Append results for statistics
         results.append(result)
 
@@ -107,7 +144,6 @@ for depth in range(1, maxdepth + 1, 2):
     mean = np.mean(results)
     st_dev = np.std(results)
     data.append(results)
-
 
 fig, ax = plt.subplots()
 ax.boxplot(data)

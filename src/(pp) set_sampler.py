@@ -20,6 +20,7 @@ for label in labels:
             # Save file in the training set sub-folder
             target = 'C:/Users/15416/PycharmProjects/PickApp/data_postprocess4 (train and test set)/training_set (70%)/'
 
+
         else:
             # Save file in the testing set sub-folder
             target = 'C:/Users/15416/PycharmProjects/PickApp/data_postprocess4 (train and test set)/testing_set (30%)/'

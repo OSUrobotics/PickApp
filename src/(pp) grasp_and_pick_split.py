@@ -1,5 +1,5 @@
 """
-Takes the data from the apple pick experiments and splits it in two halves: Grasp and Pick
+Takes data from the apple pick experiments and splits it in two halves: Grasp and Pick
 This is useful to:
  - Get rid of the points sampled during the rest of the time (e.g. amidst labeling)
  - Have the data split for grasp or pick analyses independently
@@ -118,8 +118,11 @@ def filter_variables(variables, parameter):
 
 
 # Location in Box Folder (Alejo's laptop)
-# location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/Apple Proxy Picks/Winter 2022/1_data_valid_for_grasp_and_pick/'
-location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/Apple Proxy Picks/Winter 2022/2_data_valid_for_grasp/'
+location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/Apple Proxy Picks/Winter 2022/1_data_valid_for_grasp_and_pick/'
+# location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/Apple Proxy Picks/Winter 2022/2_data_valid_for_grasp/'
+
+# stage = 'grasp'
+stage = 'pick'
 
 for subfolder in sorted(os.listdir(location)):
 
@@ -246,11 +249,11 @@ for subfolder in sorted(os.listdir(location)):
         f3_gyro_z = f3_imu.iloc[:, 10]
 
         # Net Values
-        net_force = net_value(forces_x, forces_y, forces_z)
-        net_torque = net_value(torques_x, torques_y, torques_z)
-        net_f1_acc = net_value(f1_acc_x, f1_acc_y, f1_acc_z)
-        net_f2_acc = net_value(f2_acc_x, f2_acc_y, f2_acc_z)
-        net_f3_acc = net_value(f3_acc_x, f3_acc_y, f3_acc_z)
+        # net_force = net_value(forces_x, forces_y, forces_z)
+        # net_torque = net_value(torques_x, torques_y, torques_z)
+        # net_f1_acc = net_value(f1_acc_x, f1_acc_y, f1_acc_z)
+        # net_f2_acc = net_value(f2_acc_x, f2_acc_y, f2_acc_z)
+        # net_f3_acc = net_value(f3_acc_x, f3_acc_y, f3_acc_z)
 
         arm_elapsed_time = elapsed_time(forces_x, arm_time_stamp)
         arm_joints_elapsed_time = elapsed_time(arm_joints, arm_joints_time_stamp)
@@ -284,20 +287,20 @@ for subfolder in sorted(os.listdir(location)):
         # Smooth data
 
         # Unify variables in a single list
-        arm_variables = [forces_x, forces_y, forces_z,       net_force,  # 0, 1, 2, 3
-                         torques_x, torques_y, torques_z,    net_torque,  # 4, 5, 6, 7
-                         joint_0_pos, joint_1_pos, joint_2_pos, joint_3_pos, joint_4_pos,
-                         joint_5_pos]  # 8, 9, 10, 11, 12, 13
+        arm_variables = [forces_x, forces_y, forces_z,              # 0, 1, 2
+                         torques_x, torques_y, torques_z,           # 3, 4, 5
+                         joint_0_pos, joint_1_pos, joint_2_pos,     # 6, 7, 8
+                         joint_3_pos, joint_4_pos, joint_5_pos]     # 9, 10, 11
 
-        hand_variables = [f1_acc_x, f1_acc_y, f1_acc_z,      net_f1_acc,  #  1, 2, 3,
-                          f2_acc_x, f2_acc_y, f2_acc_z,      net_f2_acc,  # 4, 5, 6, 7,
-                          f3_acc_x, f3_acc_y, f3_acc_z,      net_f3_acc,  # 8, 9, 10, 11,
-                          f1_gyro_x, f1_gyro_y, f1_gyro_z,  # 12, 13, 14,
-                          f2_gyro_x, f2_gyro_y, f2_gyro_z,  # 15, 16, 17,
-                          f3_gyro_x, f3_gyro_y, f3_gyro_z,  # 18, 19, 20,
-                          f1_state_position, f1_state_speed, f1_state_effort,  # 21, 22, 23,
-                          f2_state_position, f2_state_speed, f2_state_effort,  # 24, 25, 26,
-                          f3_state_position, f3_state_speed, f3_state_effort]  # 27, 28, 29,
+        hand_variables = [f1_acc_x, f1_acc_y, f1_acc_z,     # 0, 1, 2
+                          f2_acc_x, f2_acc_y, f2_acc_z,     # 3, 4, 5
+                          f3_acc_x, f3_acc_y, f3_acc_z,     # 6, 7, 8
+                          f1_gyro_x, f1_gyro_y, f1_gyro_z,  # 9, 10, 11
+                          f2_gyro_x, f2_gyro_y, f2_gyro_z,  # 12, 13, 14,
+                          f3_gyro_x, f3_gyro_y, f3_gyro_z,  # 15, 16, 17,
+                          f1_state_position, f1_state_speed, f1_state_effort,  # 18, 19, 20
+                          f2_state_position, f2_state_speed, f2_state_effort,  # 21, 22, 23,
+                          f3_state_position, f3_state_speed, f3_state_effort]  # 24, 25, 26,
 
         # Apply filter to all the variables
         # Median Filter
@@ -322,48 +325,72 @@ for subfolder in sorted(os.listdir(location)):
         # --- ARM WRENCH ---
         # Get the indexes of the grasp and pick moments, in order to obtain the slices
         g_on, g_off, p_on, p_off = grasp_pick_indexes(arm_time_ref, grasp_on, grasp_off, pick_on, pick_off)
-        header = 'elapsed time, force_x, force_y, force_z, net_force, torque_x, torque_y, torque_z, net_torque'
+        header = 'elapsed time, force_x, force_y, force_z, torque_x, torque_y, torque_z'
+
+        # Choose the time window whether for GRASP or PICK
+        if stage == 'grasp':
+            t_on = g_on
+            t_off = g_off
+        else:
+            t_on = p_on
+            t_off = p_off
+
         # Grasp
-        arm_list = [arm_time_ref[g_on:g_off],
-                    arm_variables_filtered[0][g_on:g_off],  # Slice the list only during the grasp
-                    arm_variables_filtered[1][g_on:g_off],  # Slice the list only during the grasp
-                    arm_variables_filtered[2][g_on:g_off],  # Slice the list only during the grasp
-                    arm_variables_filtered[3][g_on:g_off],
-                    arm_variables_filtered[4][g_on:g_off],
-                    arm_variables_filtered[5][g_on:g_off],
-                    arm_variables_filtered[6][g_on:g_off],
-                    arm_variables_filtered[7][g_on:g_off]
+        arm_list = [arm_time_ref[t_on:t_off],
+                    arm_variables_filtered[0][t_on:t_off],  # Slice the list only during the grasp
+                    arm_variables_filtered[1][t_on:t_off],  # Slice the list only during the grasp
+                    arm_variables_filtered[2][t_on:t_off],  # Slice the list only during the grasp
+                    arm_variables_filtered[3][t_on:t_off],
+                    arm_variables_filtered[4][t_on:t_off],
+                    arm_variables_filtered[5][t_on:t_off]
                     ]
-        np.savetxt("csvs/" + str(subfolder) + "_grasp_wrench.csv", np.array(arm_list).T, delimiter=',',
+        np.savetxt("csvs/" + str(subfolder) + "_" + stage + "_wrench.csv", np.array(arm_list).T, delimiter=',',
                    header=header)
 
         # --- HAND FINGER 1 ---
         # Get the indexes of the grasp and pick moments, in order to obtain the slices
         g_on, g_off, p_on, p_off = grasp_pick_indexes(f1_state_time_ref, grasp_on, grasp_off, pick_on, pick_off)
         header = 'elapsed_time, f1_state_position, f1_state_speed, f1_state_effort'
+
+        # Choose the time window whether for GRASP or PICK
+        if stage == 'grasp':
+            t_on = g_on
+            t_off = g_off
+        else:
+            t_on = p_on
+            t_off = p_off
+
         # Grasp
-        f1_states_list = [f1_state_time_ref[g_on:g_off],
-                          hand_variables_filtered[21][g_on:g_off],
-                          hand_variables_filtered[22][g_on:g_off],
-                          hand_variables_filtered[23][g_on:g_off]
+        f1_states_list = [f1_state_time_ref[t_on:t_off],
+                          hand_variables_filtered[18][t_on:t_off],
+                          hand_variables_filtered[19][t_on:t_off],
+                          hand_variables_filtered[20][t_on:t_off]
                           ]
-        np.savetxt("csvs/" + str(subfolder) + "_grasp_f1_states.csv", np.array(f1_states_list).T, delimiter=',',
+        np.savetxt("csvs/" + str(subfolder) + "_" + stage + "_f1_states.csv", np.array(f1_states_list).T, delimiter=',',
                    header=header)
 
         # Get the indexes of the grasp and pick moments, in order to obtain the slices
         g_on, g_off, p_on, p_off = grasp_pick_indexes(f1_imu_time_ref, grasp_on, grasp_off, pick_on, pick_off)
-        header = 'elapsed time, f1_acc_x, f1_acc_y, f1_acc_z, f1_acc_net, f1_gyro_x, f1_gyro_y, f1_gyro_z'
+        header = 'elapsed time, f1_acc_x, f1_acc_y, f1_acc_z, f1_gyro_x, f1_gyro_y, f1_gyro_z'
+
+        # Choose the time window whether for GRASP or PICK
+        if stage == 'grasp':
+            t_on = g_on
+            t_off = g_off
+        else:
+            t_on = p_on
+            t_off = p_off
+
         # Grasp
-        f1_imu_list = [f1_imu_time_ref[g_on:g_off],
-                       hand_variables_filtered[0][g_on:g_off],
-                       hand_variables_filtered[1][g_on:g_off],
-                       hand_variables_filtered[2][g_on:g_off],
-                       hand_variables_filtered[3][g_on:g_off],
-                       hand_variables_filtered[12][g_on:g_off],
-                       hand_variables_filtered[13][g_on:g_off],
-                       hand_variables_filtered[14][g_on:g_off],
+        f1_imu_list = [f1_imu_time_ref[t_on:t_off],
+                       hand_variables_filtered[0][t_on:t_off],
+                       hand_variables_filtered[1][t_on:t_off],
+                       hand_variables_filtered[2][t_on:t_off],
+                       hand_variables_filtered[9][t_on:t_off],
+                       hand_variables_filtered[10][t_on:t_off],
+                       hand_variables_filtered[11][t_on:t_off],
                        ]
-        np.savetxt("csvs/" + str(subfolder) + "_grasp_f1_imu.csv", np.array(f1_imu_list).T, delimiter=',',
+        np.savetxt("csvs/" + str(subfolder) + "_" + stage + "_f1_imu.csv", np.array(f1_imu_list).T, delimiter=',',
                    header=header)
 
 
@@ -371,58 +398,92 @@ for subfolder in sorted(os.listdir(location)):
         # Get the indexes of the grasp and pick moments, in order to obtain the slices
         g_on, g_off, p_on, p_off = grasp_pick_indexes(f2_state_time_ref, grasp_on, grasp_off, pick_on, pick_off)
         header = 'elapsed_time, f2_state_position, f2_state_speed, f2_state_effort'
+
+        # Choose the time window whether for GRASP or PICK
+        if stage == 'grasp':
+            t_on = g_on
+            t_off = g_off
+        else:
+            t_on = p_on
+            t_off = p_off
+
         # Grasp
-        f2_states_list = [f2_state_time_ref[g_on:g_off],
-                          hand_variables_filtered[24][g_on:g_off],
-                          hand_variables_filtered[25][g_on:g_off],
-                          hand_variables_filtered[26][g_on:g_off]
+        f2_states_list = [f2_state_time_ref[t_on:t_off],
+                          hand_variables_filtered[21][t_on:t_off],
+                          hand_variables_filtered[22][t_on:t_off],
+                          hand_variables_filtered[23][t_on:t_off]
                           ]
-        np.savetxt("csvs/" + str(subfolder) + "_grasp_f2_states.csv", np.array(f2_states_list).T, delimiter=',',
+        np.savetxt("csvs/" + str(subfolder) + "_" + stage + "_f2_states.csv", np.array(f2_states_list).T, delimiter=',',
                    header=header)
 
         # Get the indexes of the grasp and pick moments, in order to obtain the slices
         g_on, g_off, p_on, p_off = grasp_pick_indexes(f2_imu_time_ref, grasp_on, grasp_off, pick_on, pick_off)
-        header = 'elapsed time, f2_acc_x, f2_acc_y, f2_acc_z, f2_acc_net, f2_gyro_x, f2_gyro_y, f2_gyro_z'
+        header = 'elapsed time, f2_acc_x, f2_acc_y, f2_acc_z, f2_gyro_x, f2_gyro_y, f2_gyro_z'
+
+        # Choose the time window whether for GRASP or PICK
+        if stage == 'grasp':
+            t_on = g_on
+            t_off = g_off
+        else:
+            t_on = p_on
+            t_off = p_off
+
         # Grasp
-        f2_imu_list = [f2_imu_time_ref[g_on:g_off],
-                       hand_variables_filtered[4][g_on:g_off],
-                       hand_variables_filtered[5][g_on:g_off],
-                       hand_variables_filtered[6][g_on:g_off],
-                       hand_variables_filtered[7][g_on:g_off],
-                       hand_variables_filtered[15][g_on:g_off],
-                       hand_variables_filtered[16][g_on:g_off],
-                       hand_variables_filtered[17][g_on:g_off],
+        f2_imu_list = [f2_imu_time_ref[t_on:t_off],
+                       hand_variables_filtered[3][t_on:t_off],
+                       hand_variables_filtered[4][t_on:t_off],
+                       hand_variables_filtered[5][t_on:t_off],
+                       hand_variables_filtered[12][t_on:t_off],
+                       hand_variables_filtered[13][t_on:t_off],
+                       hand_variables_filtered[14][t_on:t_off]
                        ]
-        np.savetxt("csvs/" + str(subfolder) + "_grasp_f2_imu.csv", np.array(f2_imu_list).T, delimiter=',',
+        np.savetxt("csvs/" + str(subfolder) + "_" + stage + "_f2_imu.csv", np.array(f2_imu_list).T, delimiter=',',
                    header=header)
 
         # --- HAND FINGER 3 ---
         # Get the indexes of the grasp and pick moments, in order to obtain the slices
         g_on, g_off, p_on, p_off = grasp_pick_indexes(f3_state_time_ref, grasp_on, grasp_off, pick_on, pick_off)
         header = 'elapsed_time, f3_state_position, f3_state_speed, f3_state_effort'
+
+        # Choose the time window whether for GRASP or PICK
+        if stage == 'grasp':
+            t_on = g_on
+            t_off = g_off
+        else:
+            t_on = p_on
+            t_off = p_off
+
         # Grasp
-        f3_states_list = [f3_state_time_ref[g_on:g_off],
-                          hand_variables_filtered[27][g_on:g_off],
-                          hand_variables_filtered[28][g_on:g_off],
-                          hand_variables_filtered[29][g_on:g_off]
+        f3_states_list = [f3_state_time_ref[t_on:t_off],
+                          hand_variables_filtered[24][t_on:t_off],
+                          hand_variables_filtered[25][t_on:t_off],
+                          hand_variables_filtered[26][t_on:t_off]
                           ]
-        np.savetxt("csvs/" + str(subfolder) + "_grasp_f3_states.csv", np.array(f3_states_list).T, delimiter=',',
+        np.savetxt("csvs/" + str(subfolder) + "_" + stage + "_f3_states.csv", np.array(f3_states_list).T, delimiter=',',
                    header=header)
         # Grasp
         # Get the indexes of the grasp and pick moments, in order to obtain the slices
         g_on, g_off, p_on, p_off = grasp_pick_indexes(f3_imu_time_ref, grasp_on, grasp_off, pick_on, pick_off)
-        header = 'elapsed time, f3_acc_x, f3_acc_y, f3_acc_z, f3_acc_net, f3_gyro_x, f3_gyro_y, f3_gyro_z'
+        header = 'elapsed time, f3_acc_x, f3_acc_y, f3_acc_z, f3_gyro_x, f3_gyro_y, f3_gyro_z'
+
+        # Choose the time window whether for GRASP or PICK
+        if stage == 'grasp':
+            t_on = g_on
+            t_off = g_off
+        else:
+            t_on = p_on
+            t_off = p_off
+
         # Grasp
-        f3_imu_list = [f3_imu_time_ref[g_on:g_off],
-                       hand_variables_filtered[8][g_on:g_off],
-                       hand_variables_filtered[9][g_on:g_off],
-                       hand_variables_filtered[10][g_on:g_off],
-                       hand_variables_filtered[11][g_on:g_off],
-                       hand_variables_filtered[18][g_on:g_off],
-                       hand_variables_filtered[19][g_on:g_off],
-                       hand_variables_filtered[20][g_on:g_off],
+        f3_imu_list = [f3_imu_time_ref[t_on:t_off],
+                       hand_variables_filtered[6][t_on:t_off],
+                       hand_variables_filtered[7][t_on:t_off],
+                       hand_variables_filtered[8][t_on:t_off],
+                       hand_variables_filtered[15][t_on:t_off],
+                       hand_variables_filtered[16][t_on:t_off],
+                       hand_variables_filtered[17][t_on:t_off],
                        ]
-        np.savetxt("csvs/" + str(subfolder) + "_grasp_f3_imu.csv", np.array(f3_imu_list).T, delimiter=',',
+        np.savetxt("csvs/" + str(subfolder) + "_" + stage + "_f3_imu.csv", np.array(f3_imu_list).T, delimiter=',',
                    header=header)
 
 

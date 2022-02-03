@@ -1,28 +1,108 @@
-# Math related packages
-import numpy as np
-from numpy import random
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.datasets import make_classification
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-# Visualization related packages
-from tqdm import tqdm
-import matplotlib.pyplot as plt
-# Database related packages
 import pandas as pd
+from tsfresh import extract_features
+from tsfresh import select_features
+from tsfresh.utilities.dataframe_functions import impute
+from tsfresh import extract_relevant_features
+import numpy as np
+import pandas as pd
+from pandas import Int64Index as NumericIndex
+import csv
+import tqdm
+
+from numpy import genfromtxt
 
 
-# Parameters
-experiments = 10
-maxdepth = 10
+def get_features(location):
+    # Read the example from ts-fresh
+    # timeseries = pd.read_csv(location + 'example_x.csv')
+    # y = pd.read_csv(location + 'example_y.csv', index_col=0, squeeze=True)
+
+    # Read data from apple-picks
+    timeseries = pd.read_csv(location + 'joined_timeseries.csv')
+    # y = pd.read_csv(location + 'y_smaller.csv', index_col=False, header=None, squeeze=True)
+    y = pd.read_csv(location + 'joined_y.csv', index_col=0, header=0, squeeze=True)
+
+    # Time Series Data
+    print('--- Time series data ---')
+    print('Type: ', type(timeseries))
+    print('Length: ', len(timeseries))
+    print('Data: \n', timeseries)
+
+    # Results Data
+    print('--- Results data ---')
+    print('Type: ', type(y))
+    print('Length: ', len(y))
+    print('Data: \n', y)
+
+    extracted = extract_features(timeseries, column_id="id", column_sort="time")
+    extracted.to_csv(location + 'features.csv')
+
+    impute(extracted)
+    X_filtered = select_features(extracted, y)
+    print('--- The extracted features are:', extracted)
+    print('--- The extracted filtered features are: ', X_filtered)
+
+    X_filtered.to_csv(location + 'features.csv')
+
+    return X_filtered
 
 
-# Autoencoder Features (from pickle Files)
-location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/Apple Proxy Picks/Winter 2022/grasp_classifer_data/'
-subfolder = 'Autoencoders/Two Features/'
+def best_features(features):
+    """
+    Obtains the first feature of each variable
+    :param features: features extracted with ts-fresh
+    :return: Columns that contain the first feature of each variable
+    """
+    variables_checked = []
+    variable_and_features = []
+    cols = []
+    col = 0
 
-experiment = 'RFC with 2 Autoencoder features'
+    for i in list(features.columns.values):
+
+        variable = str(i)
+        end = variable.find('__')  # Every feature starts with double __
+        variable = variable[:end]
+        print(variable)
+
+        if not variable in variables_checked:
+            cols.append(col)
+            variables_checked.append(variable)
+            variable_and_features.append(i)
+
+        col += 1
+
+    print(variable_and_features)
+    print(variables_checked)
+    print(cols)
+
+    return cols
 
 
-pck_X_train = location + subfolder + 'Autoencoder 2' + '.pickle'
-X_train = pd.read_pickle(pck_X_train)
+def create_list(location, features, cols):
+    hope = pd.DataFrame()
+    s = 0
+    for col in cols:
+        feature = features.iloc[:, col]
+        hope[s] = feature
+        # print(feature)
+        s += 1
+
+    print(hope)
+    hope.to_csv(location + 'best_features.csv', index=False)
+
+
+if __name__ == "__main__":
+    # Load data
+    location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/improved data/grasp/Data_with_33_cols/postprocess_4_for_tsfresh/'
+
+    # Obtain the filtered features
+    # features = get_features(location)
+
+    # Leave only the most important features
+    features = pd.read_csv(location + 'features.csv')
+    # print(features)
+
+    columns = best_features(features)
+
+    create_list(location, features, columns)
