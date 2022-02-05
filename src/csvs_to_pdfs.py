@@ -40,10 +40,10 @@ stage = 'PICK'
 cases = ['success', 'failed']
 
 for dataset in datasets:
-    print('\n', dataset)
+    print('\nDataset: ', dataset)
 
     for case in cases:
-        print(case)
+        print('Case: ', case)
         pick_location = main + dataset + '/' + stage + '/' + subfolder + '/' + case + '/'
 
         # --- Create PDF ---
@@ -97,6 +97,8 @@ for dataset in datasets:
             ax.set_title(file + ' ' + f'$\\bf{label}$', size=8, loc='left')
             ax.set_ylim(-20, 35)
             ax.set_xlim(0, 5)
+            ax.set_xlabel('Elapsed time [sec]')
+
 
             plot_number += 1
 

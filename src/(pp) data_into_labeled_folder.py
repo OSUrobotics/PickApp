@@ -9,8 +9,8 @@ import shutil
 main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
 # datasets = ['3_proxy_winter22_x1/']
 # datasets = ['4_proxy_winter22_x5/']
-# datasets = ['5_real_fall21_x1/']
-datasets = ['6_real_fall21_x5/']
+datasets = ['5_real_fall21_x1/']
+# datasets = ['6_real_fall21_x5/']
 
 for dataset in datasets:
 
@@ -55,16 +55,19 @@ for dataset in datasets:
 
         # --- Step 4:
         # Spread the files (making a copy)
-        stages = ['GRASP/', 'PICK/']
-        suffixes = ['__grasp', '__pick']
+        # stages = ['GRASP/', 'PICK/']
+        stages = ['PICK/']
+        # suffixes = ['__grasp', '__pick']
+        suffixes = ['_pick_']
 
         for stage, suffix in zip(stages, suffixes):
-            source_location = main + dataset + stage + 'pp3_joined/'
-            target_location = main + dataset + stage + 'pp4_folders_labeled/' + sub_folder
+            source_location = main + dataset + stage + 'pp1_split/'
+            target_location = main + dataset + stage + '__for_proxy_real_comparison/' + sub_folder
 
             for j in range(5):
                 # built_name = name + suffix + '_' + str(j) + '.csv'
-                built_name = name + suffix + str(j) + '.csv'
+                # built_name = name + suffix + str(j) + '.csv'
+                built_name = name + suffix + 'wrench.csv'
                 # built_name = name + suffix + '.csv'
                 shutil.copy(source_location + built_name, target_location + built_name)
 

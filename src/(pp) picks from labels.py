@@ -6,8 +6,6 @@ import os
 # File related packages
 import csv
 
-import pandas as pd
-
 
 def single_label(location, label_index, label_result):
     """
@@ -40,7 +38,7 @@ def single_label(location, label_index, label_result):
                     pics.append(filename)
                     # print(filename)
 
-    print('Quantity: %i out of %i, which is %.2f %%' % (len(pics), total, 100 * len(pics) / total))
+    # print('Quantity: %i out of %i, which is %.2f %%' % (len(pics), total, 100 * len(pics) / total))
     return pics
 
 
@@ -77,7 +75,7 @@ def and_label(location, label_1_index, label_1_result, label_2_index, label_2_re
                     pics.append(filename)
                     # print(filename)
 
-    print('Quantity: %i out of %i, which is %.2f %%' % (len(pics), total, 100 * len(pics) / total))
+    # print('Quantity: %i out of %i, which is %.2f %%' % (len(pics), total, 100 * len(pics) / total))
     return pics
 
 
@@ -99,7 +97,7 @@ def pickNumberFromString(string):
     return name
 
 
-def real_vs_failed(real_list, same_result_proxy_list, other_result_proxy_list):
+def real_vs_proxy_with_noise(real_list, same_result_proxy_list, other_result_proxy_list):
 
     total_realSuc_proxySuc_count = 0
     total_realSuc_failSuc_count = 0
@@ -141,9 +139,45 @@ def real_vs_failed(real_list, same_result_proxy_list, other_result_proxy_list):
     total_matches = total_realSuc_proxySuc_count / (total_realSuc_proxySuc_count + total_realSuc_failSuc_count)
     total_unmatches = total_realSuc_failSuc_count / (total_realSuc_proxySuc_count + total_realSuc_failSuc_count)
 
-    # print('After replicating the Successful Real-Picks, %.1f in the proxy were Successful whereas the rest %.1f was not' % (total_matches, total_unmatches))
 
     return total_matches, total_unmatches
+
+
+def real_vs_proxy_without_noise(real_list, same_result_proxy_list, other_result_proxy_list):
+
+    total_realSuc_proxySuc_count = 0
+    total_realSuc_proxyfail_count = 0
+
+    total_matches = 0
+    total_unmatches = 0
+
+    for real_suc_pic in real_list:
+        # Subtract the real-pic number
+        real_pic_number = pickNumberFromString(real_suc_pic)
+        # print(real_suc_pic)
+
+        # Check if it exists
+        name = 'apple_proxy_pick' + str(real_pic_number) + '-10_metadata.csv'
+
+        if name in same_result_proxy_list:
+            total_realSuc_proxySuc_count += 1
+            print('Match: ', name)
+
+        elif name in other_result_proxy_list:
+            total_realSuc_proxyfail_count += 1
+            print('No Match: ', name)
+
+        try:
+            total_matches = total_realSuc_proxySuc_count / (total_realSuc_proxySuc_count + total_realSuc_proxyfail_count)
+            total_unmatches = total_realSuc_proxyfail_count / (total_realSuc_proxySuc_count + total_realSuc_proxyfail_count)
+
+        except ZeroDivisionError:
+            pass
+            # print('Success Real Pick %s --> Without valid proxy picks' % real_pic_number)
+
+    print('Real Pick match with the closest Proxy Pick', total_realSuc_proxySuc_count)
+    return total_matches, total_unmatches
+
 
 if __name__ == '__main__':
     # --- Step 1: Read the metadata-files and make a list of the successful picks and failure picks
@@ -172,11 +206,23 @@ if __name__ == '__main__':
     proxy_fail_list = single_label(metadata_loc, 10, 'f')
 
     # Compare Successful real picks with the respective proxy pick:
-    suc_matches, suc_unmatches = real_vs_failed(real_suc_list, proxy_suc_list, proxy_fail_list)
-    print('After replicating SUCCESSFUL Real-Picks, %.1f in the proxy were'
-          ' Successful whereas the rest %.1f was not' % (suc_matches, suc_unmatches))
+    # suc_matches, suc_unmatches = real_vs_proxy_with_noise(real_suc_list, proxy_suc_list, proxy_fail_list)
+    # print('After replicating SUCCESSFUL Real-Picks, %.1f in the proxy were'
+    #       ' Successful whereas the rest %.1f was not' % (suc_matches, suc_unmatches))
 
     # Compare Failed real picks with the respective proxy pick:
-    fail_matches, fail_unmatches = real_vs_failed(real_fail_list, proxy_fail_list, proxy_suc_list)
-    print('After replicating FAILED Real-Picks, %.1f in the proxy were'
-          ' Failed whereas the rest %.1f was not' % (fail_matches, fail_unmatches))
+    # fail_matches, fail_unmatches = real_vs_proxy_with_noise(real_fail_list, proxy_fail_list, proxy_suc_list)
+    # print('After replicating FAILED Real-Picks, %.1f in the proxy were'
+    #       ' Failed whereas the rest %.1f was not' % (fail_matches, fail_unmatches))
+
+    # Compare only the Proxy-Pick-10 which had no noise:
+    print('\n *** Successful Pick matches between the closest Real and Proxy Picks ***')
+    suc_matches, suc_unmatches = real_vs_proxy_without_noise(real_suc_list, proxy_suc_list, proxy_fail_list)
+    print('\nAfter replicating SUCCESSFUL Real-Picks, %.1f in the proxy were'
+          ' Successful whereas the rest %.1f was not' % (suc_matches, suc_unmatches))
+
+    # Compare only the Proxy-Pick-10 which had no noise:
+    print('\n *** Failed Pick matches between the closest Real and Proxy Picks ***')
+    fail_matches, fail_unmatches = real_vs_proxy_without_noise(real_fail_list, proxy_fail_list, proxy_suc_list)
+    print('\nAfter replicating FAILED Real-Picks, %.1f in the proxy were'
+          ' FAILED whereas the rest %.1f was not' % (fail_matches, fail_unmatches))
