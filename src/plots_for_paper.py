@@ -31,23 +31,28 @@ case = 'failed'
 subfolder = '__for_proxy_real_comparison'
 
 # Similar Picks: Place Proxy Pics in column 0, and Real Pics in column 1
-case = 'failed'
-similar_pics = [
-                       ['4-10', '27'],
-                       ['74-6', '5'],
-                       ['15-7', '24'],
-                       ['15-12', '13'],
-                       ['32-4', '57']
-                      ]
-
-# case = 'success'
+# case = 'failed'
+# types = ['f1', 'f2', 'f3', 'f4']
 # similar_pics = [
-#                            ['11-10', '64'],
-#                            ['49-10', '48'],
-#                            ['26-12', '71'],
-#                            ['25-0', '77'],
-#                            ]
+#                 ['4-10', '27'],  # Hunchback
+#                 ['15-7', '24'],  # Pyramid
+#                 ['32-4', '57'],   # Whale
+#                 ['74-6', '5']   # Mouth
+#                 ['15-12', '13'], # Rounded Tip
+                  # ]
 
+case = 'success'
+types = ['s1', 's2', 's3', 's4']
+similar_pics = [
+               ['11-10', '64'],     # Right Triangle
+               ['49-10', '48'],     # Hunchback Cut
+               ['26-12', '71'],     # Mouth Cut
+               ['25-0', '77'],      # Long Hunchback
+               ]
+
+f, axrray = plt.subplots(1, len(similar_pics))
+
+col = 0
 
 for couple in similar_pics:
 
@@ -66,14 +71,25 @@ for couple in similar_pics:
     proxy_pic_time, proxy_pic_values = pic_list(proxy_file_location, 3)
     real_pic_time, real_pic_values = pic_list(real_file_location, 3)
 
-    plt.plot(proxy_pic_time, proxy_pic_values, '--', label='Apple Proxy')
-    plt.plot(real_pic_time, real_pic_values, label='Real Tree')
-    plt.grid()
-    plt.legend()
-    plt.xlabel('Time [sec]')
-    plt.ylabel('Force z [N]')
-    plt.ylim(-20, 35)
-    plt.xlim(0, 4)
+    # Pot
+    ax = axrray[col]
+    ax.plot(proxy_pic_time, proxy_pic_values, '-', label='Apple Proxy', linewidth=2)
+    ax.plot(real_pic_time, real_pic_values, label='Real Tree')
+    ax.grid()
+    ax.legend()
+    ax.set_ylim(-5, 30)
+    ax.set_xlim(0, 4)
+    ax.set_xlabel('Time [sec]')
+    ax.set_ylabel('Force z [N]')
+    ax.set_title(types[col])
 
-    plt.show()
+    col += 1
+
+
+# Only have the outer labels
+for ax in f.get_axes():
+    ax.label_outer()
+
+f.suptitle('Successful apple-pick cases')
+plt.show()
 
