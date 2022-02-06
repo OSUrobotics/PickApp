@@ -10,7 +10,7 @@ target_location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/
 label = 'false'
 target_file = 'y_failed.csv'
 i = 1
-
+#
 # #Success
 # location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/improved data/grasp/Data_with_33_cols/postprocess_3/successful/'
 # location = 'C:/Users/15416/PycharmProjects/PickApp/data/Apple Proxy Data/data_postprocess3 (only grasp_downsampled_ joined)/successful/'
