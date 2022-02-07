@@ -52,7 +52,8 @@ def get_features(location):
 
 def best_features(features):
     """
-    Obtains the first feature of each variable
+    From the huge list of features extracted by ts-fresh, this function
+    leaves only the first feature of each variable
     :param features: features extracted with ts-fresh
     :return: Columns that contain the first feature of each variable
     """
@@ -97,7 +98,7 @@ def create_list(location, features, cols):
 
 def tsfresh_example():
     """
-    Run the example from the website https://tsfresh.readthedocs.io/en/latest/text/quick_start.html
+    Runs the example from the website https://tsfresh.readthedocs.io/en/latest/text/quick_start.html
     """
 
     # ---- Download Data ---- #
@@ -126,6 +127,8 @@ def tsfresh_example():
     impute(X)
     X_filtered = select_features(X, y)
     print(X_filtered)
+
+
 
 
 if __name__ == "__main__":

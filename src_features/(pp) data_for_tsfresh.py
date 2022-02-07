@@ -63,4 +63,6 @@ all_files = glob.glob(os.path.join(target_location, "*.csv"))
 
 dataframe = pd.concat(map(pd.read_csv, all_files), ignore_index=True)
 
+target_location = 'C:/Users/15416/PycharmProjects/PickApp/data'
+
 dataframe.to_csv(target_location + 'pleaaase.csv', index=False)
