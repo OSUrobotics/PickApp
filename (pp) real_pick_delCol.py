@@ -22,7 +22,15 @@ maxdepth = 10
 # Autoencoder Features (from pickle Files)
 # Location of the Real-Apple data already split and downsampled
 # location = 'C:/Users/15416/PycharmProjects\PickApp\data\Real Apples Data/real_data_stage1/'
-location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/4_proxy_winter22_x5/PICK/pp1_split_x45cols/'
+
+main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
+dataset = '5_real_fall21_x1/'
+subfolder = 'pp1_split_x45cols/'
+
+stage = 'PICK/'
+
+location = main + dataset + stage + subfolder
+# location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/4_proxy_winter22_x5/PICK/pp1_split_x45cols/'
 
 # First delete the columns
 for filename in sorted(os.listdir(location)):
@@ -33,8 +41,6 @@ for filename in sorted(os.listdir(location)):
     print(var)
 
 
-
-
     if var == "h":
         # These are WRENCH files, from which we'll delete columns 4 and 8
         print(filename)
@@ -43,14 +49,13 @@ for filename in sorted(os.listdir(location)):
             reader = csv.reader(source)
 
             new_name = name
-            target_location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/4_proxy_winter22_x5/PICK/pp1_split/'
-                              # ''C:/Users/15416/PycharmProjects\PickApp\data\Real Apples Data/improved data/'
+            target_location = main + dataset + stage + '/pp1_split/'
 
             with open(target_location + new_name, "w", newline='') as result:
                 writer = csv.writer(result)
                 for r in reader:
                     # writer.writerow((r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]))
-                    writer.writerow((r[1], r[2], r[3], r[4], r[5], r[6]))
+                    writer.writerow((r[0], r[1], r[2], r[3], r[4], r[5], r[6]))
 
     if var == "u":
         # These are IMU files, from which we'll delete columns 4 and 8
@@ -61,7 +66,7 @@ for filename in sorted(os.listdir(location)):
             reader = csv.reader(source)
 
             new_name = name
-            target_location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/4_proxy_winter22_x5/PICK/pp1_split/'
+            target_location = main + dataset + stage + '/pp1_split/'
 
             with open(target_location + new_name, "w", newline='') as result:
                 writer = csv.writer(result)
@@ -77,7 +82,7 @@ for filename in sorted(os.listdir(location)):
             reader = csv.reader(source)
 
             new_name = name
-            target_location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/4_proxy_winter22_x5/PICK/pp1_split/'
+            target_location = main + dataset + stage + '/pp1_split/'
 
             with open(target_location + new_name, "w", newline='') as result:
                 writer = csv.writer(result)

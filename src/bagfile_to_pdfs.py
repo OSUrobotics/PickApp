@@ -908,7 +908,6 @@ if __name__ == '__main__':
                                     # Margins
                                     plt.subplots_adjust(left=0.075, bottom=0.05, right=0.925, top=0.95, wspace=0.1, hspace=0.175)
 
-
                             except KeyboardInterrupt:
                                 # --- You may cancel the process at any time, and the plots will still be saved
                                 pdf_pages.savefig(f)

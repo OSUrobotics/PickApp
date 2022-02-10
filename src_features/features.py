@@ -2,6 +2,9 @@ import pandas as pd
 from tsfresh import extract_features
 from tsfresh import select_features
 from tsfresh.utilities.dataframe_functions import impute
+from tsfresh.examples.robot_execution_failures import download_robot_execution_failures, \
+    load_robot_execution_failures
+
 from tsfresh import extract_relevant_features
 import numpy as np
 import pandas as pd
@@ -49,7 +52,8 @@ def get_features(location):
 
 def best_features(features):
     """
-    Obtains the first feature of each variable
+    From the huge list of features extracted by ts-fresh, this function
+    leaves only the first feature of each variable
     :param features: features extracted with ts-fresh
     :return: Columns that contain the first feature of each variable
     """
@@ -92,6 +96,41 @@ def create_list(location, features, cols):
     hope.to_csv(location + 'best_features.csv', index=False)
 
 
+def tsfresh_example():
+    """
+    Runs the example from the website https://tsfresh.readthedocs.io/en/latest/text/quick_start.html
+    """
+
+    # ---- Download Data ---- #
+    download_robot_execution_failures()
+    timeseries, y = load_robot_execution_failures()
+
+
+    # location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/improved data/grasp/Data_with_33_cols/postprocess_4_for_tsfresh/'
+    # timeseries.to_csv(location + 'example_x.csv')
+    # y.to_csv(location + 'example_y.csv')
+
+    # Time Series Data
+    print('--- Time series data ---')
+    print('Type: ', type(timeseries))
+    print('Length: ', len(timeseries))
+    print('Data: \n', timeseries)
+
+    # Results Data
+    print('--- Results data ---')
+    print('Type: ', type(y))
+    print('Length: ', len(y))
+    print('Data: \n', y)
+
+    # ---- Extract Features ---- #
+    X = extract_features(timeseries, column_id="id", column_sort="time")
+    impute(X)
+    X_filtered = select_features(X, y)
+    print(X_filtered)
+
+
+
+
 if __name__ == "__main__":
     # Load data
     location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/improved data/grasp/Data_with_33_cols/postprocess_4_for_tsfresh/'
@@ -100,9 +139,11 @@ if __name__ == "__main__":
     # features = get_features(location)
 
     # Leave only the most important features
-    features = pd.read_csv(location + 'features.csv')
+    # features = pd.read_csv(location + 'features.csv')
     # print(features)
 
-    columns = best_features(features)
+    # columns = best_features(features)
+    # create_list(location, features, columns)
 
-    create_list(location, features, columns)
+    # Run the ts-fresh example as a reference
+    tsfresh_example()

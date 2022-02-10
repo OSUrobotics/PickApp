@@ -10,7 +10,7 @@ target_location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/
 label = 'false'
 target_file = 'y_failed.csv'
 i = 1
-
+#
 # #Success
 # location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/improved data/grasp/Data_with_33_cols/postprocess_3/successful/'
 # location = 'C:/Users/15416/PycharmProjects/PickApp/data/Apple Proxy Data/data_postprocess3 (only grasp_downsampled_ joined)/successful/'
@@ -62,5 +62,7 @@ for file in sorted(os.listdir(location)):
 all_files = glob.glob(os.path.join(target_location, "*.csv"))
 
 dataframe = pd.concat(map(pd.read_csv, all_files), ignore_index=True)
+
+target_location = 'C:/Users/15416/PycharmProjects/PickApp/data'
 
 dataframe.to_csv(target_location + 'pleaaase.csv', index=False)
