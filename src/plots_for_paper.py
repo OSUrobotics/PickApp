@@ -76,7 +76,8 @@ def qual_compare(main, datasets, stage, subfolder, case, titles, similar_pics):
     :param similar_pics:
     :return:
     """
-    f, axrray = plt.subplots(1, len(similar_pics))
+    # f = plt.figure(figsize=(4, 4))
+    f, axrray = plt.subplots(1, len(similar_pics), figsize=(12, 4))
 
     col = 0
     for couple in similar_pics:
@@ -97,12 +98,12 @@ def qual_compare(main, datasets, stage, subfolder, case, titles, similar_pics):
 
         # Pot
         ax = axrray[col]
-        ax.plot(proxy_pic_time, proxy_pic_values, '-', label='Apple Proxy', linewidth=2)
+        # ax.plot(proxy_pic_time, proxy_pic_values, '-', label='Apple Proxy', linewidth=2)
         ax.plot(real_pic_time, real_pic_values, label='Real Tree')
-        ax.grid()
+        # ax.grid()
         ax.legend()
-        ax.set_ylim(-5, 30)
-        ax.set_xlim(0, 4)
+        ax.set_ylim(-5, 25)
+        ax.set_xlim(0, 3)
         ax.set_xlabel('Time [sec]')
         ax.set_ylabel('Force z [N]')
         ax.set_title(titles[col])
@@ -113,8 +114,7 @@ def qual_compare(main, datasets, stage, subfolder, case, titles, similar_pics):
     for ax in f.get_axes():
         ax.label_outer()
 
-    f.suptitle(case + ' apple-pick cases')
-    plt.show()
+    # f.suptitle(case + ' apple-pick cases')
 
 
 def auc(x, y, start_idx, end_idx):
@@ -272,6 +272,32 @@ def strip_and_box(dataframe, feature, case):
     plt.grid()
     plt.ylim(-5, 40)
 
+
+def count_plot(proxy_picks_shapes, real_picks_shapes, case):
+    # ... Shape Plots ...
+    p_picks_perc = []
+    for number in proxy_picks_shapes:
+        p_picks_perc.append(number / sum(proxy_picks_shapes))
+
+    r_picks_perc = []
+    for number in real_picks_shapes:
+        r_picks_perc.append(number / sum(real_picks_shapes))
+
+    print('Proxy shapes', proxy_picks_shapes)
+    print('Real pick shapes', real_picks_shapes)
+    print("Proxy pick shapes  %.2f, %.2f, %.2f, %.2f, %.2f" % (p_picks_perc[0], p_picks_perc[1], p_picks_perc[2], p_picks_perc[3], p_picks_perc[4]))
+    print("Real pick shapes  %.2f, %.2f, %.2f, %.2f, %.2f" % (r_picks_perc[0], r_picks_perc[1], r_picks_perc[2], r_picks_perc[3], r_picks_perc[4]))
+
+    df = pd.DataFrame({"Percentage": p_picks_perc + r_picks_perc,
+                      "Domain": ['Proxy', 'Proxy', 'Proxy', 'Proxy', 'Proxy', 'Real', 'Real', 'Real', 'Real', 'Real'],
+                      "Shape": ['End', 'L-Skew', 'Middle', 'R-Skew', 'Other', 'End', 'L-Skew', 'Middle', 'R-Skew', 'Other']})
+
+    fig = plt.figure(figsize=(4, 4))
+    sns.barplot(x="Shape", y="Percentage", data=df, hue="Domain")
+    plt.grid()
+    plt.title(case)
+
+
 if __name__ == "__main__":
 
     # Data Location
@@ -287,17 +313,25 @@ if __name__ == "__main__":
     #                 ['15-7', '24'],  # Pyramid
     #                 ['32-4', '57'],   # Whale
     #                 ['74-6', '5']   # Mouth
-    #                 # ['15-12', '13'], # Rounded Tip
+    # #                 ['15-12', '13'], # Rounded Tip
     #                   ]
-    # qual_compare(main, datasets, stage, subfolder, 'failed', ['f1', 'f2', 'f3', 'f4'], similar_pics)
+    similar_pics = [
+        ['4-10', '49'],  # Hunchback
+        ['15-7', '24'],  # Pyramid
+        ['32-4', '18'],  # Whale
+        ['74-6', '17']  # Mouth
+        #                 ['15-12', '13'], # Rounded Tip
+        ]
+
+    qual_compare(main, datasets, stage, subfolder, 'failed', ['Start', 'Middle', 'Whale', 'End'], similar_pics)
     #
     # # Similar Successful Pics
     # similar_pics = [
     #                ['11-10', '64'],     # Right Triangle
     #                ['49-10', '48'],     # Hunchback Cut
     #                ['26-12', '71'],     # Mouth Cut
-    #                ['25-0', '77'],      # Long Hunchback
-    #                ]
+                   # ['25-0', '77'],      # Long Hunchback
+                   # ]
     # qual_compare(main, datasets, stage, subfolder, 'success', ['s1', 's2', 's3', 's4'], similar_pics)
 
     # --- Quantitative Comparison of Real vs Proxy ---
@@ -418,24 +452,8 @@ if __name__ == "__main__":
     strip_and_box(df3, 'Force z - Peak [N]', case)
     strip_and_box(df3, 'Force z - AUC [N.s]', case)
     strip_and_box(df3, 'Force z - Slope [N/s]', case)
+    count_plot(proxy_picks_shapes, real_picks_shapes, case)
 
-    p_picks_perc = []
-    for number in proxy_picks_shapes:
-        p_picks_perc.append(number / sum(proxy_picks_shapes))
 
-    r_picks_perc = []
-    for number in real_picks_shapes:
-        r_picks_perc.append(number / sum(real_picks_shapes))
-
-    print('Proxy shapes', proxy_picks_shapes)
-    print('Real pick shapes', real_picks_shapes)
-
-    print("Proxy pick shapes  %.2f, %.2f, %.2f, %.2f, %.2f" % (p_picks_perc[0], p_picks_perc[1], p_picks_perc[2], p_picks_perc[3], p_picks_perc[4]))
-    print("Real pick shapes  %.2f, %.2f, %.2f, %.2f, %.2f" % (r_picks_perc[0], r_picks_perc[1], r_picks_perc[2], r_picks_perc[3], r_picks_perc[4]))
-
-    print(counter)
     plt.show()
-
-
-
 
