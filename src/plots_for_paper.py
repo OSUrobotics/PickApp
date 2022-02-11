@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import scipy
 from scipy.stats import skew
+import tqdm
 
 from matplotlib.patches import PathPatch
 
@@ -49,22 +50,27 @@ def adjust_box_widths(g, fac):
 
 def pic_list(file, variable):
 
+    # variable: String
+
     # Turn csv into pandas - dataframe
     df = pd.read_csv(file)
-    df = np.array(df)
+    # df = np.array(df)
 
+    print(file)
     # Read the initial readings
-    initial_value = df[0, variable]
-    initial_time = df[0, 0]
+    initial_value = df.iloc[1][variable]
+    initial_time = df.iloc[0][0]
 
     # Subtract initial reading to all channels to ease comparison
-    time = df[:, 0] - initial_time
-    value = df[:, variable] - initial_value
+    # time = df[:, 0] - initial_time
+    time = df['# elapsed time'] - initial_time
+    # value = df[:, variable] - initial_value
+    value = df[variable] - initial_value
 
     return time, value
 
 
-def qual_compare(main, datasets, stage, subfolder, case, titles, similar_pics):
+def qual_compare(main, datasets, stage, subfolder, case, titles, similar_pics, variable, topic):
     """
     Creates a plot of the time series of the given similar -pics in order to compare them visually
     :param main:
@@ -85,16 +91,16 @@ def qual_compare(main, datasets, stage, subfolder, case, titles, similar_pics):
         real_pic_number = couple[1]
 
         # Concatenate file name
-        proxy_pic_file = 'apple_proxy_pick' + proxy_pic_number + '_pick_wrench.csv'
-        real_pic_file = 'real_apple_pick_' + real_pic_number + '_pick_wrench.csv'
+        proxy_pic_file = 'apple_proxy_pick' + proxy_pic_number + '_grasp_' + str(topic) + '.csv'
+        real_pic_file = 'real_apple_pick_' + real_pic_number + '_grasp_' + str(topic) + '.csv'
 
         # Concatenate location
         proxy_file_location = main + datasets[0] + '/' + stage + '/' + subfolder + '/' + case + '/' + proxy_pic_file
         real_file_location = main + datasets[1] + '/' + stage + '/' + subfolder + '/' + case + '/' + real_pic_file
 
         # Get simplified lists with the variable of interest
-        proxy_pic_time, proxy_pic_values = pic_list(proxy_file_location, 3)
-        real_pic_time, real_pic_values = pic_list(real_file_location, 3)
+        proxy_pic_time, proxy_pic_values = pic_list(proxy_file_location, variable)
+        real_pic_time, real_pic_values = pic_list(real_file_location, variable)
 
         # Pot
         ax = axrray[col]
@@ -161,7 +167,7 @@ def crossings(x, y):
         # If none were detected, then is flat
         print('Flat')
         x_init = x[0]
-        x_end = x[-1]
+        x_end = x.iloc[-1]
         x_init_idx = 0
         x_end_idx = len(x) - 1
 
@@ -248,7 +254,7 @@ def slope(x, y, t_start, t_end):
     return slope
 
 
-def strip_and_box(dataframe, feature, case):
+def strip_and_box(dataframe, feature, case, variable):
 
     fig = plt.figure(figsize=(4, 4))
 
@@ -258,22 +264,22 @@ def strip_and_box(dataframe, feature, case):
     else:
         my_pal = {"Real Tree": "#387A23", "Apple Proxy": "#A9D18E"}
 
-    # bplot = sns.boxplot(x='level_1', y=feature, data=df3, palette='colorblind', width=0.4, boxprops=dict(alpha=.9))
-    bplot = sns.boxplot(x='level_1', y=feature, data=dataframe, palette=my_pal, width=0.4, boxprops=dict(alpha=.8))
+    bplot = sns.boxplot(x='level_1', y=feature, data=dataframe, palette='colorblind', width=0.4, boxprops=dict(alpha=.4))
+    # bplot = sns.boxplot(x='level_1', y=feature, data=dataframe, palette=my_pal, width=0.4, boxprops=dict(alpha=.4))
     bplot = sns.stripplot(x='level_1', y=feature, data=dataframe, color='black', size=4, alpha=.6)
     # bplot = sns.stripplot(x='level_1', y=col, data=df3)
 
     # plt.title(col + ' ' + case + ' picks' + '(considering diameter)')
     # plt.title(col + ' ' + case + ' picks' + " (all except " + shape + ")")
-    plt.title(feature + ' / ' + case + ' picks')
+    plt.title(variable + ' / ' + feature + ' / ' + case + ' picks')
     # plt.title(col + ' ' + case + ' picks' + " ( " + shape + ")")
     # plt.title(col + ' ' + case + ' picks' + " (all)")
 
     plt.grid()
-    plt.ylim(-5, 40)
+    #plt.ylim(-5, 40)
 
 
-def count_plot(proxy_picks_shapes, real_picks_shapes, case):
+def count_plot(proxy_picks_shapes, real_picks_shapes, case, variable):
     # ... Shape Plots ...
     p_picks_perc = []
     for number in proxy_picks_shapes:
@@ -295,16 +301,83 @@ def count_plot(proxy_picks_shapes, real_picks_shapes, case):
     fig = plt.figure(figsize=(4, 4))
     sns.barplot(x="Shape", y="Percentage", data=df, hue="Domain")
     plt.grid()
-    plt.title(case)
+    plt.title(variable + ' / ' + case)
 
+
+def statistics(feature):
+
+    mean = round(np.mean(feature), 1)
+    stdev = round(np.std(feature), 1)
+    cv = round(stdev / mean, 2)
+
+    return mean, stdev, cv
+
+
+def temporal(locations, topic, variable):
+
+    end_shape, middle_shape, start_shape, other_shape, whale_shape = 0, 0, 0, 0, 0
+    peak_values = []
+    aucs = []
+    slopes = []
+
+    for location in locations:
+        for file in sorted(os.listdir(location)):
+            if file.endswith(str(topic) + '.csv'):
+                # Subtract the pick number from the name
+                name = str(file)
+                start = name.index('k')
+                end = name.index(str(topic))
+                pick_number = name[start+2: end - 6]
+                # print(pick_number)
+
+                # Get the time series
+                print(file)
+                time, values = pic_list(location + file, variable)
+
+                # Get some common features
+                start, end, start_idx, end_idx = crossings(time, values)        # Start and ending time of the force plot
+                peak_value = max(values)                                        # Peak Value
+                fz_auc = auc(time, values, start_idx, end_idx)                  # Area under the curve
+                s = slope(time, values, start, end)                             # Slope
+                type = shape_of_pick(time, values, start, end)                  # Shape
+
+                # Check the type of the shape
+                print('\n', file)
+                print(type)
+                if type == 'End':
+                    end_shape += 1
+                elif type == 'Middle':
+                    middle_shape += 1
+                elif type == 'Whale':
+                    whale_shape += 1
+                elif type == 'Other':
+                    other_shape += 1
+                elif type == 'Start':
+                    start_shape += 1
+
+                # Save lists
+                if type in included_shapes:
+                    peak_values.append(peak_value)
+                    aucs.append(fz_auc)
+                    slopes.append(s)
+
+    shapes_frec = [end_shape, whale_shape, middle_shape, start_shape, other_shape]
+
+    return peak_values, aucs, slopes, shapes_frec
 
 if __name__ == "__main__":
 
     # Data Location
     main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
     datasets = ['3_proxy_winter22_x1', '5_real_fall21_x1', '1_proxy_rob537_x1']
-    stage = 'PICK'
+    stage = 'GRASP'
     subfolder = '__for_proxy_real_comparison'
+
+    topic = 'wrench'
+    variable = ' force_'
+
+    topic = 'f1_imu'
+    variable = ' f1_gyro_x'
 
     # # --- Qualitative Comparison of Real vs Proxy ---
     # # Similar Failed Picks: Place Proxy Pics in column 0, and Real Pics in column 1
@@ -323,7 +396,7 @@ if __name__ == "__main__":
         #                 ['15-12', '13'], # Rounded Tip
         ]
 
-    qual_compare(main, datasets, stage, subfolder, 'failed', ['Start', 'Middle', 'Whale', 'End'], similar_pics)
+    qual_compare(main, datasets, stage, subfolder, 'failed', ['Start', 'Middle', 'Whale', 'End'], similar_pics, variable, topic)
     #
     # # Similar Successful Pics
     # similar_pics = [
@@ -332,128 +405,50 @@ if __name__ == "__main__":
     #                ['26-12', '71'],     # Mouth Cut
                    # ['25-0', '77'],      # Long Hunchback
                    # ]
-    # qual_compare(main, datasets, stage, subfolder, 'success', ['s1', 's2', 's3', 's4'], similar_pics)
+    # qual_compare(main, datasets, stage, subfolder, 'success', ['s1', 's2', 's3', 's4'], similar_pics, variable)
 
     # --- Quantitative Comparison of Real vs Proxy ---
     # Step 1 - Get the list
-    # case = 'success'
+    #case = 'success'
     case = 'failed'
 
-    included_shapes = ['Start', 'Middle', 'Whale', 'End']
+    included_shapes = ['Start', 'Middle', 'Whale', 'End', 'Other']
     # included_shapes = ['Other']
     # included_shapes = ['Start']
     # included_shapes = ['End']
 
-    proxy_files_location = main + datasets[0] + '/' + stage + '/' + subfolder + '/' + case + '/'
-    # proxy_files_location_b = main + datasets[2] + '/' + stage + '/' + subfolder + '/' + case + '/'
+    proxy_files_location_a = main + datasets[0] + '/' + stage + '/' + subfolder + '/' + case + '/'
+    proxy_files_location_b = main + datasets[2] + '/' + stage + '/' + subfolder + '/' + case + '/'
     real_files_location = main + datasets[1] + '/' + stage + '/' + subfolder + '/' + case + '/'
 
-    rpeak_values = []
-    raucs = []
-    rslopes = []
-
-    r_end_shape, r_middle_shape, r_start_shape, r_other_shape, r_whale_shape = 0, 0, 0, 0, 0
-
-    counter =0
-    for file in os.listdir(real_files_location):
-        print('\n', file)
-
-        # Subtract the pick number from the name
-        name = str(file)
-        start = name.index('k')
-        end = name.index('w')
-        pick_number = name[start+2: end - 6]
-        # print(pick_number)
-
-        # Get the time series
-        time, values = pic_list(real_files_location + file, 3)
-
-        # Get some common features
-        start, end, start_idx, end_idx = crossings(time, values)        # Start and ending time of the force plot
-        peak_value = max(values)                                        # Peak Value
-        fz_auc = auc(time, values, start_idx, end_idx)                  # Area under the curve
-        s = slope(time, values, start, end)                             # Slope
-        type = shape_of_pick(time, values, start, end)                  # Shape
-
-        # Check type
-        print(type)
-        if type == 'End':
-            r_end_shape += 1
-        elif type == 'Middle':
-            r_middle_shape += 1
-        elif type == 'Whale':
-            r_whale_shape += 1
-        elif type == 'Other':
-            r_other_shape += 1
-        elif type == 'Start':
-            r_start_shape += 1
-
-        # Save lists
-        if type in included_shapes:
-            counter +=1
-            rpeak_values.append(peak_value)
-            raucs.append(fz_auc)
-            rslopes.append(s)
-
-    real_picks_shapes = [r_end_shape, r_whale_shape, r_middle_shape, r_start_shape, r_other_shape]
-
-    d = {'Force z - Peak [N]': rpeak_values, 'Force z - AUC [N.s]': raucs, 'Force z - Slope [N/s]': rslopes}
+    # Get the information from the REAL PICKS datasets
+    rpeak_values, raucs, rslopes, real_picks_shapes = temporal([real_files_location], topic, variable)
+    d = {'Peak [N]': rpeak_values, 'AUC [N.s]': raucs, 'Slope [N/s]': rslopes}
     df1 = pd.DataFrame(data=d)
 
-
-    # Step 2 - Get the list
-    ppeak_values = []
-    paucs = []
-    pslopes = []
-
-    p_end_shape, p_middle_shape, p_start_shape, p_other_shape, p_whale_shape = 0, 0, 0, 0, 0
-
-    for file in os.listdir(proxy_files_location):
-        print('\n', file)
-        time, values = pic_list(proxy_files_location + file, 3)
-
-        # Get some common features
-        start, end, start_idx, end_idx = crossings(time, values)    # Start and ending time of the force plot
-        peak_value = max(values)                                    # Peak Value
-        fz_auc = auc(time, values, start_idx, end_idx)              # Area under the curve
-        s = slope(time, values, start, end)                         # Slope
-        type = shape_of_pick(time, values, start, end)              # Shape
-
-        # Check type
-        print(type)
-        if type == 'End':
-            p_end_shape += 1
-            # print(p_end_shape)
-        elif type == 'Middle':
-            p_middle_shape += 1
-        elif type == 'Whale':
-            p_whale_shape += 1
-        elif type == 'Other':
-            p_other_shape += 1
-        elif type == 'Start':
-            p_start_shape += 1
-
-        # Save lists
-        if type in included_shapes:
-            ppeak_values.append(peak_value)
-            paucs.append(fz_auc)
-            pslopes.append(s)
-
-
-    proxy_picks_shapes = [p_end_shape, p_whale_shape, p_middle_shape, p_start_shape, p_other_shape]
-
-    d = {'Force z - Peak [N]': ppeak_values, 'Force z - AUC [N.s]': paucs, 'Force z - Slope [N/s]': pslopes}
+    # Get the information from the PROXY PICKS datasets
+    ppeak_values, paucs, pslopes, proxy_picks_shapes = temporal([proxy_files_location_a, proxy_files_location_b], topic, variable)
+    d = {'Peak [N]': ppeak_values, 'AUC [N.s]': paucs, 'Slope [N/s]': pslopes}
     df2 = pd.DataFrame(data=d)
 
+    print("\n**** Real Statistics ****")
+    print("Mean, Std and CV of Peak Values are: ", statistics(rpeak_values))
+    print("Mean, Std and CV of Slopes Values are: ", statistics(rslopes))
+    print("Mean, Std and CV of AUCS Values are: ", statistics(raucs))
+
+    print("\n**** Proxy Statistics ****")
+    print("Mean, Std and CV of Peak Values are: ", statistics(ppeak_values))
+    print("Mean, Std and CV of Slopes Values are: ", statistics(pslopes))
+    print("Mean, Std and CV of AUCS Values are: ", statistics(paucs))
+
+    # ... Plots ...
     df3 = pd.concat([df1, df2], axis=1, keys=['Real Tree', 'Apple Proxy']).stack(0)
     df3 = df3.reset_index(level=1)
 
-    # ... Plots ...
-    strip_and_box(df3, 'Force z - Peak [N]', case)
-    strip_and_box(df3, 'Force z - AUC [N.s]', case)
-    strip_and_box(df3, 'Force z - Slope [N/s]', case)
-    count_plot(proxy_picks_shapes, real_picks_shapes, case)
-
+    strip_and_box(df3, 'Peak [N]', case, variable)
+    strip_and_box(df3, 'AUC [N.s]', case, variable)
+    strip_and_box(df3, 'Slope [N/s]', case, variable)
+    count_plot(proxy_picks_shapes, real_picks_shapes, case, variable)
 
     plt.show()
 

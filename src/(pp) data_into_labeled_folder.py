@@ -11,6 +11,7 @@ main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
 # datasets = ['4_proxy_winter22_x5/']
 datasets = ['5_real_fall21_x1/']
 # datasets = ['6_real_fall21_x5/']
+# datasets = ['1_proxy_rob537_x1/']
 
 for dataset in datasets:
 
@@ -35,9 +36,11 @@ for dataset in datasets:
 
         # For Real-Apple metadata
         start = name.index('r')
+        #start = name.index('ap')
         end = name.index('k')
-        end_2 = name.index('n')
+        end_2 = name.index('m')
         name = name[start:end+1] + '_' + name[end + 1:end_2 - 1]
+        #name = name[start:end + 1] + name[end + 1:end_2 - 1]
 
         # --- Step 3: Read the label/result
         rows = []
@@ -55,10 +58,11 @@ for dataset in datasets:
 
         # --- Step 4:
         # Spread the files (making a copy)
-        # stages = ['GRASP/', 'PICK/']
-        stages = ['PICK/']
-        # suffixes = ['__grasp', '__pick']
-        suffixes = ['_pick_']
+        stages = ['GRASP/', 'PICK/']
+        # stages = ['PICK/']
+        suffixes = ['_grasp_', '_pick_']
+        #suffixes = ['_pick_']
+        # suffixes = ['_pick']
 
         for stage, suffix in zip(stages, suffixes):
             source_location = main + dataset + stage + 'pp1_split/'
@@ -67,8 +71,10 @@ for dataset in datasets:
             for j in range(5):
                 # built_name = name + suffix + '_' + str(j) + '.csv'
                 # built_name = name + suffix + str(j) + '.csv'
-                built_name = name + suffix + 'wrench.csv'
+                #built_name = name + suffix + 'wrench.csv'
+                built_name = name + suffix + 'f1_imu.csv'
                 # built_name = name + suffix + '.csv'
+
                 shutil.copy(source_location + built_name, target_location + built_name)
 
         print(name)
