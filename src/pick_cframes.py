@@ -1,15 +1,16 @@
-# Som references
+# @Author : Alejandro Velasquez
+
+"""
+1 - Plots the characteristic angles of the picks w.r.t. base
+2 - Plots the characteristic angles of the picks w.r.t. hand
+3 - Plots a scatterplot of all the characteristic angles and shows the k-means.
+"""
+
+# Some references
 # https://stackoverflow.com/questions/11140163/plotting-a-3d-cube-a-sphere-and-a-vector-in-matplotlib
 # https://stackoverflow.com/questions/32424670/python-matplotlib-drawing-3d-sphere-with-circumferences
 # https://stackoverflow.com/questions/54970401/matplotlib-scatter-plot-with-xyz-axis-lines-through-origin-0-0-0-and-axis-proj
 
-# System related Packages
-import os
-import sys
-import copy
-# import rospy
-import time
-import subprocess, shlex, psutil
 # Math related Packages
 import numpy as np
 from sklearn.cluster import KMeans
@@ -17,7 +18,38 @@ from sklearn.cluster import KMeans
 import csv
 # Plot Packages
 import matplotlib.pyplot as plt
+from matplotlib.patches import FancyArrowPatch
+from mpl_toolkits.mplot3d.axes3d import Axes3D
 from mpl_toolkits import mplot3d
+
+
+def set_axes_equal(ax):
+    '''Make axes of 3D plot have equal scale so that spheres appear as spheres,
+    cubes as cubes, etc..  This is one possible solution to Matplotlib's
+    ax.set_aspect('equal') and ax.axis('equal') not working for 3D.
+
+    Input
+      ax: a matplotlib axis, e.g., as output from plt.gca().
+    '''
+
+    x_limits = ax.get_xlim3d()
+    y_limits = ax.get_ylim3d()
+    z_limits = ax.get_zlim3d()
+
+    x_range = abs(x_limits[1] - x_limits[0])
+    x_middle = np.mean(x_limits)
+    y_range = abs(y_limits[1] - y_limits[0])
+    y_middle = np.mean(y_limits)
+    z_range = abs(z_limits[1] - z_limits[0])
+    z_middle = np.mean(z_limits)
+
+    # The plot bounding box is a sphere in the sense of the infinity
+    # norm, hence I call half the max range the plot radius.
+    plot_radius = 0.5*max([x_range, y_range, z_range])
+
+    ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
+    ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
+    ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
 
 
 def draw_in_hand(i, plot=True):
@@ -168,6 +200,22 @@ def draw_in_base(i, handToStem_angle, handToGravity_angle, stemToGravity_angle):
     ax.axes.yaxis.set_ticklabels([])
     ax.axes.zaxis.set_ticklabels([])
 
+    # ---- Step 1: Draw the gravity Vector ----
+    gravity_vector = np.array([0, 0, -1])
+    ax.quiver(0, 0, 0, gravity_vector[0], gravity_vector[1], gravity_vector[2], length=1, color='k')
+    ax.text(gravity_vector[0], gravity_vector[1], 1.2 * gravity_vector[2], "Gravity", color='k', size=15, zorder=1)
+
+    # ---- Step 2: Draw the center of the apple ----
+    a = b = c = 0
+    u = np.linspace(0, 2 * np.pi, 100)
+    v = np.linspace(0, np.pi, 100)
+    diam = 0.5
+    x = (diam * np.outer(np.cos(u), np.sin(v))) + a
+    y = (diam * np.outer(np.sin(u), np.sin(v))) + b
+    z = (1.25 * diam * np.outer(np.ones(np.size(u)), np.cos(v))) + c
+    ax.plot_surface(x, y, z, rstride=4, cstride=4, color='r', linewidth=0, alpha=0.2)
+    ax.scatter(a, b, c, color="k", s=100)
+
     # ---- Step 1: Draw the Stem Vector ----
     calix = np.array([float(apple_calix[0]), float(apple_calix[1]), float(apple_calix[2])])
     stem = np.array([float(apple_stem[0]), float(apple_stem[1]), float(apple_stem[2])])
@@ -175,29 +223,29 @@ def draw_in_base(i, handToStem_angle, handToGravity_angle, stemToGravity_angle):
     # print("Before", stem_vector)
     stem_vector = stem_vector / np.linalg.norm(stem_vector)  # Normalize its magnitude
     # print("After", stem_vector)
-    ax.quiver(0, 0, 0, stem_vector[0], stem_vector[1], stem_vector[2], length=1, color='b')
-    ax.text(stem_vector[0], stem_vector[1], stem_vector[2], "Stem", color='b', size=15, zorder=1)
+    ax.quiver(0, 0, 0, stem_vector[0], stem_vector[1], stem_vector[2], length=1, color='brown')
+    ax.text(stem_vector[0], stem_vector[1], stem_vector[2], "Stem", color='brown', size=15, zorder=1)
 
-    # ---- Step 2: Draw the gravity Vector ----
-    ax.quiver(0, 0, 0, 0, 0, -1, length=1, color='r')
-    ax.text(0, 0, -1, "Gravity", color='r', size=15, zorder=1)
+    # # ---- Step 2: Draw the gravity Vector ----
+    # ax.quiver(0, 0, 0, 0, 0, -1, length=1, color='r')
+    # ax.text(0, 0, -1, "Gravity", color='r', size=15, zorder=1)
 
-    # ---- Step 3: Draw the apple -----
-    a = float(apple_center[0])
-    b = float(apple_center[1])
-    c = float(apple_center[2])
-    a = b = c = 0
+    # # ---- Step 3: Draw the apple -----
+    # a = float(apple_center[0])
+    # b = float(apple_center[1])
+    # c = float(apple_center[2])
+    # a = b = c = 0
+    #
+    # u = np.linspace(0, 2 * np.pi, 100)
+    # v = np.linspace(0, np.pi, 100)
+    # diam = 0.5
+    # x = (diam * np.outer(np.cos(u), np.sin(v))) + a
+    # y = (diam * np.outer(np.sin(u), np.sin(v))) + b
+    # z = (diam * np.outer(np.ones(np.size(u)), np.cos(v))) + c
+    # ax.plot_surface(x, y, z, rstride=4, cstride=4, color='r', linewidth=0, alpha=0.2)
 
-    u = np.linspace(0, 2 * np.pi, 100)
-    v = np.linspace(0, np.pi, 100)
-    diam = 0.5
-    x = (diam * np.outer(np.cos(u), np.sin(v))) + a
-    y = (diam * np.outer(np.sin(u), np.sin(v))) + b
-    z = (diam * np.outer(np.ones(np.size(u)), np.cos(v))) + c
-    ax.plot_surface(x, y, z, rstride=4, cstride=4, color='r', linewidth=0, alpha=0.2)
-
-    # ---- Step 4: Draw the center of the apple ----
-    ax.scatter(a, b, c, color="g", s=100)
+    # # ---- Step 4: Draw the center of the apple ----
+    # ax.scatter(a, b, c, color="g", s=100)
 
     # ---- Step 5: Draw the Hand's axes
     hand_origin = np.array([float(hand_origin[0]), float(hand_origin[1]), float(hand_origin[2])])
@@ -206,16 +254,16 @@ def draw_in_base(i, handToStem_angle, handToGravity_angle, stemToGravity_angle):
     hand_z = np.array([float(hand_z[0]), float(hand_z[1]), float(hand_z[2])])
     hand_x_vector = np.subtract(hand_x, hand_origin)
     hand_x_vector = hand_x_vector / np.linalg.norm(hand_x_vector)
-    ax.quiver(0, 0, 0, hand_x_vector[0], hand_x_vector[1], hand_x_vector[2], length=1, color='k')
-    ax.text(hand_x_vector[0], hand_x_vector[1], hand_x_vector[2], "Hand Frame x", color='k', size=8, zorder=1)
+    # ax.quiver(0, 0, 0, hand_x_vector[0], hand_x_vector[1], hand_x_vector[2], length=1, color='k')
+    # ax.text(hand_x_vector[0], hand_x_vector[1], hand_x_vector[2], "Hand Frame x", color='k', size=8, zorder=1)
     hand_y_vector = np.subtract(hand_y, hand_origin)
     hand_y_vector = hand_y_vector / np.linalg.norm(hand_y_vector)
-    ax.quiver(0, 0, 0, hand_y_vector[0], hand_y_vector[1], hand_y_vector[2], length=1, color='k')
-    ax.text(hand_y_vector[0], hand_y_vector[1], hand_y_vector[2], "Hand Frame y", color='k', size=8, zorder=1)
+    # ax.quiver(0, 0, 0, hand_y_vector[0], hand_y_vector[1], hand_y_vector[2], length=1, color='k')
+    # ax.text(hand_y_vector[0], hand_y_vector[1], hand_y_vector[2], "Hand Frame y", color='k', size=8, zorder=1)
     hand_z_vector = np.subtract(hand_z, hand_origin)
     hand_z_vector = hand_z_vector / np.linalg.norm(hand_z_vector)
-    ax.quiver(0, 0, 0, hand_z_vector[0], hand_z_vector[1], hand_z_vector[2], length=1, color='k')
-    ax.text(hand_z_vector[0], hand_z_vector[1], hand_z_vector[2], "Hand Frame z", color='k', size=15, zorder=1)
+    ax.quiver(0, 0, 0, hand_z_vector[0], hand_z_vector[1], hand_z_vector[2], length=1, color='b')
+    ax.text(hand_z_vector[0], hand_z_vector[1], hand_z_vector[2], "Hand", color='b', size=15, zorder=1)
 
     plt.suptitle("Hand and Stem w.r.t Base - Pick %i" % (k + 1))
     plt.title('Hand-Stem: %.0f\N{DEGREE SIGN} , Hand-Gravity: %.0f\N{DEGREE SIGN}, Stem-Gravity %0.f\N{DEGREE SIGN}' % (
@@ -230,7 +278,7 @@ def draw_kmeans_in_base(i):
     # ---- Step 0: Initialize Figure
     fig = plt.figure()
     ax = plt.axes(projection='3d')
-    size = 1
+    size = 0.8
     ax.set_xlim(-size, size)
     ax.set_ylim(-size, size)
     ax.set_zlim(-size, size)
@@ -247,7 +295,7 @@ def draw_kmeans_in_base(i):
     # ---- Step 1: Draw the gravity Vector ----
     gravity_vector = np.array([0, 0, -1])
     ax.quiver(0, 0, 0, gravity_vector[0], gravity_vector[1], gravity_vector[2], length=1, color='k')
-    ax.text(gravity_vector[0], gravity_vector[1], gravity_vector[2], "Gravity", color='k', size=15, zorder=1)
+    ax.text(gravity_vector[0], gravity_vector[1], 1.2 * gravity_vector[2], "Gravity", color='k', size=15, zorder=1)
 
     # ---- Step 2: Draw the center of the apple ----
     a = b = c = 0
@@ -257,7 +305,7 @@ def draw_kmeans_in_base(i):
     diam = 0.5
     x = (diam * np.outer(np.cos(u), np.sin(v))) + a
     y = (diam * np.outer(np.sin(u), np.sin(v))) + b
-    z = (diam * np.outer(np.ones(np.size(u)), np.cos(v))) + c
+    z = (1.25 * diam * np.outer(np.ones(np.size(u)), np.cos(v))) + c
     ax.plot_surface(x, y, z, rstride=4, cstride=4, color='r', linewidth=0, alpha=0.2)
 
     ax.scatter(a, b, c, color="k", s=100)
@@ -282,6 +330,7 @@ def draw_kmeans_in_base(i):
     ax.quiver(0, 0, 0, hand_vector[0], hand_vector[1], hand_vector[2], length=1, color='blue')
     ax.text(hand_vector[0], hand_vector[1], hand_vector[2], "Hand", color='blue', size=15, zorder=1)
 
+    set_axes_equal(ax)
 
 
 
@@ -335,7 +384,7 @@ if __name__ == '__main__':
         j = apple_coords_base[k]
 
         handToStem_angle, handToGravity_angle, stemToGravity_angle = draw_in_hand(i, False)   # Plot in hand's c-frame
-        # draw_in_base(j, handToStem_angle, handToGravity_angle, stemToGravity_angle)     # Plot in baselink's c-frame
+        draw_in_base(j, handToStem_angle, handToGravity_angle, stemToGravity_angle)     # Plot in baselink's c-frame
 
         if (k+1) in success_picks:
             # Save it in success angles
@@ -395,7 +444,7 @@ if __name__ == '__main__':
         draw_kmeans_in_base(i)
 
     # ax.minorticks_on()
-    ax.scatter(alpha, beta, gamma, alpha=1, s=80, c='k', marker='^', depthshade=False, label='k-means')
+    # ax.scatter(alpha, beta, gamma, alpha=1, s=80, c='k', marker='^', depthshade=False, label='k-means')
 
     # Customize the major grid
     ax.grid(which='major', linestyle='-', linewidth='0.5', color='red')
@@ -411,6 +460,6 @@ if __name__ == '__main__':
     print('The angles are', angles_for_kmeans[target])
 
     # ---------------------------------------- Step 3 - Store angles in a csv file -------------------------------------
-    with open('angles.csv', 'w') as f:
+    with open('../data/angles.csv', 'w') as f:
         write = csv.writer(f)
         write.writerows(angles)
