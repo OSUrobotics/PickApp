@@ -103,21 +103,30 @@ def agg_linear_trend(x):
 
 
 def pic_list(file, variable):
+    """
 
-    # variable: String
+    :param file:
+    :param variable: Given as a strin
+    :return: Simplified list
+    """
 
-    # Turn csv into pandas - dataframe
+    # ---- Step 1: Turn csv into pandas - dataframe
     df = pd.read_csv(file)
     # df = np.array(df)
 
-    # print(file)
-    # Read the initial readings
-    initial_value = df.iloc[1][variable]
+    # ---- Step 2: Read the reference readings (whether initial or last) to make the offset
+    # Reference value
+    if variable == " force_z":
+        if '/GRASP/' in file:
+            initial_value = df.iloc[-1][variable]
+        if '/PICK/' in file:
+            initial_value = df.iloc[0][variable]
+    else:
+        initial_value = 0
+    # Reference time
     initial_time = df.iloc[0][0]
 
-    initial_value = 0
-
-    # Subtract initial reading to all channels to ease comparison
+    # ---- Step 3: Subtract reference reading to all channels to ease comparison
     # time = df[:, 0] - initial_time
     time = df['# elapsed time'] - initial_time
     # value = df[:, variable] - initial_value
@@ -190,6 +199,73 @@ def crossings(x, y):
     return x_init, x_end, x_init_idx, x_end_idx
 
 
+def compare_picks(comparable_picks, topic, main, datasets, subfolder, case, variable):
+
+    for comparable_pick in comparable_picks:
+
+        # ------------------------------------- Step 1 - Concatenated Folders ------------------------------------------
+        proxy_pick = str(comparable_pick) + '-10'  # number 10 are the ones without noise added
+        real_pick = comparable_pick
+        # Build name
+        real_pick_file = 'real_apple_pick_' + str(real_pick) + '_pick_' + str(topic) + '.csv'
+        real_grasp_file = 'real_apple_pick_' + str(real_pick) + '_grasp_' + str(topic) + '.csv'
+        proxy_pick_file = 'apple_proxy_pick' + str(proxy_pick) + '_pick_' + str(topic) + '.csv'
+        proxy_grasp_file = 'apple_proxy_pick' + str(proxy_pick) + '_grasp_' + str(topic) + '.csv'
+        # Concatenate location
+        real_location_pick = main + datasets[1] + '/PICK/' + subfolder + '/' + case + '/' + real_pick_file
+        real_location_grasp = main + datasets[1] + '/GRASP/' + subfolder + '/' + case + '/' + real_grasp_file
+        proxy_location_pick = main + datasets[0] + '/PICK/' + subfolder + '/' + case + '/' + proxy_pick_file
+        proxy_location_grasp = main + datasets[0] + '/GRASP/' + subfolder + '/' + case + '/' + proxy_grasp_file
+
+        # -------------------------------------------- Step 2 - Bring the data -----------------------------------------
+        # A - Successful
+        real_pick_time, real_pick_value = pic_list(real_location_pick, variable)
+        real_grasp_time, real_grasp_value = pic_list(real_location_grasp, variable)
+        proxy_pick_time, proxy_pick_value = pic_list(proxy_location_pick, variable)
+        proxy_grasp_time, proxy_grasp_value = pic_list(proxy_location_grasp, variable)
+
+        # ---------------------------------------- Step 3 - Generate array of plots ------------------------------------
+        f, axrray = plt.subplots(1, 2, figsize=(6, 2), dpi=100, sharey=True)
+        plt.subplots_adjust(wspace=0.05, hspace=0.175)
+
+        if variable == ' force_z':
+            legend_loc = 'upper right'
+        else:
+            legend_loc = 'lower right'
+
+        # Grasp
+        ax = axrray[0]
+        ax.grid()
+        ax.plot(real_grasp_time, real_grasp_value, label='Real', color="#de8f05")
+        ax.plot(proxy_grasp_time, proxy_grasp_value, label='Proxy', color="#0173b2")
+        ax.legend(loc=legend_loc)
+        ax.set_ylabel(variable)
+        # Location of the Pick and Grasp Labels
+        y_max = max(np.max(real_pick_value), np.max(proxy_pick_value))
+        if y_max > 1:
+            ax.annotate('Grasp', xy=(0, 0.8 * y_max), size=15)
+        else:
+            ax.annotate('Grasp', xy=(0, -0.8), size=15)
+
+        # Pick
+        ax = axrray[1]
+        ax.grid()
+        ax.plot(real_pick_time, real_pick_value, label='Real', color="#de8f05")
+        ax.plot(proxy_pick_time, proxy_pick_value, label='Proxy', color="#0173b2")
+        ax.legend(loc=legend_loc)
+        # Location of the Pick and Grasp Labels
+        y_max = max(np.max(real_pick_value), np.max(proxy_pick_value))
+        if y_max > 1:
+            ax.annotate('Pick', xy=(0, 0.8 * y_max), size=15)
+        else:
+            ax.annotate('Pick', xy=(0, -0.8), size=15)
+
+        if case == "success":
+            plt.suptitle('Comparison of -- Successful -- Real and Proxy pick' + str(comparable_pick), y=1)
+        elif case == "failed":
+            plt.suptitle('Comparison of -- Failed -- Real and Proxy pick' + str(comparable_pick), y=1)
+
+
 if __name__ == "__main__":
 
     # Data Location
@@ -213,108 +289,16 @@ if __name__ == "__main__":
     offset = 10
 
     # ----------------------------------------- A - SUCCESSFUL PICKS ---------------------------------------------------
-    # comparable_picks = [16, 31, 43, 64, 71, 72]
-    # case = 'success'
-    # for comparable_pick in comparable_picks:
-    #
-    #     # ------------------------------------- Step 1 - Concatenated Folders ------------------------------------------
-    #     proxy_success_pick = str(comparable_pick) + '-10'      # number 10 are the ones without noise added
-    #     real_success_pick = comparable_pick
-    #     # Build name
-    #     real_success_pick_file = 'real_apple_pick_' + str(real_success_pick) + '_pick_' + str(topic) + '.csv'
-    #     real_success_grasp_file = 'real_apple_pick_' + str(real_success_pick) + '_grasp_' + str(topic) + '.csv'
-    #     proxy_success_pick_file = 'apple_proxy_pick' + str(proxy_success_pick) + '_pick_' + str(topic) + '.csv'
-    #     proxy_success_grasp_file = 'apple_proxy_pick' + str(proxy_success_pick) + '_grasp_' + str(topic) + '.csv'
-    #     # Concatenate location
-    #     real_success_location_pick = main + datasets[1] + '/PICK/' + subfolder + '/' + case + '/' + real_success_pick_file
-    #     real_success_location_grasp = main + datasets[1] + '/GRASP/' + subfolder + '/' + case + '/' + real_success_grasp_file
-    #     proxy_success_location_pick = main + datasets[0] + '/PICK/' + subfolder + '/' + case + '/' + proxy_success_pick_file
-    #     proxy_success_location_grasp = main + datasets[0] + '/GRASP/' + subfolder + '/' + case + '/' + proxy_success_grasp_file
-    #
-    #     # -------------------------------------------- Step 2 - Bring the data -----------------------------------------
-    #     # A - Successful
-    #     real_success_pick_time, real_success_pick_value = pic_list(real_success_location_pick, variable)
-    #     real_success_grasp_time, real_success_grasp_value = pic_list(real_success_location_grasp, variable)
-    #     proxy_success_pick_time, proxy_success_pick_value = pic_list(proxy_success_location_pick, variable)
-    #     proxy_success_grasp_time, proxy_success_grasp_value = pic_list(proxy_success_location_grasp, variable)
-    #
-    #     # ---------------------------------------- Step 4 - Generate array of plots ------------------------------------
-    #     f, axrray = plt.subplots(1, 2, figsize=(6, 3), dpi=100, sharey=True)
-    #     plt.subplots_adjust(wspace=0.05, hspace=0.175)
-    #     # Grasp
-    #     ax = axrray[0]
-    #     ax.grid()
-    #     ax.plot(real_success_grasp_time, real_success_grasp_value, label='Real')
-    #     ax.plot(proxy_success_grasp_time, proxy_success_grasp_value, label='Proxy')
-    #     ax.legend()
-    #     ax.set_ylabel(variable)
-    #     y_max = max(max(real_success_pick_value), max(proxy_success_pick_value))
-    #     ax.annotate('Grasp', xy=(0, 0.9* y_max), size=15)
-    #     # Pick
-    #     ax = axrray[1]
-    #     ax.grid()
-    #     ax.plot(real_success_pick_time, real_success_pick_value, label='Real')
-    #     ax.plot(proxy_success_pick_time, proxy_success_pick_value, label='Proxy')
-    #     ax.legend()
-    #     y_max = max(max(real_success_pick_value), max(proxy_success_pick_value))
-    #     ax.annotate('Pick', xy=(0, 0.9 * y_max), size=15)
-    #
-    #     plt.suptitle('Comparison of successful Real and Proxy pick' + str(comparable_pick), y=1)
+    comparable_picks = [16, 31, 43, 64, 71, 72]
+    case = 'success'
+    compare_picks(comparable_picks, topic, main, datasets, subfolder, case, variable)
 
     # ----------------------------------------- B - FAILED PICKS -------------------------------------------------------
     comparable_picks = [15, 4]
     case = 'failed'
-    for comparable_pick in comparable_picks:
-
-        # ------------------------------------- Step 1 - Concatenated Folders ------------------------------------------
-        proxy_failed_pick = str(comparable_pick) + '-10'  # number 10 are the ones without noise added
-        real_failed_pick = comparable_pick
-        # Build name
-        real_failed_pick_file = 'real_apple_pick_' + str(real_failed_pick) + '_pick_' + str(topic) + '.csv'
-        real_failed_grasp_file = 'real_apple_pick_' + str(real_failed_pick) + '_grasp_' + str(topic) + '.csv'
-        proxy_failed_pick_file = 'apple_proxy_pick' + str(proxy_failed_pick) + '_pick_' + str(topic) + '.csv'
-        proxy_failed_grasp_file = 'apple_proxy_pick' + str(proxy_failed_pick) + '_grasp_' + str(topic) + '.csv'
-        # Concatenate location
-        real_failed_location_pick = main + datasets[1] + '/PICK/' + subfolder + '/' + case + '/' + real_failed_pick_file
-        real_failed_location_grasp = main + datasets[1] + '/GRASP/' + subfolder + '/' + case + '/' + real_failed_grasp_file
-        proxy_failed_location_pick = main + datasets[0] + '/PICK/' + subfolder + '/' + case + '/' + proxy_failed_pick_file
-        proxy_failed_location_grasp = main + datasets[0] + '/GRASP/' + subfolder + '/' + case + '/' + proxy_failed_grasp_file
-
-        # ----------------------------------------- Step 2 - Bring the data --------------------------------------------
-        real_failed_pick_time, real_failed_pick_value = pic_list(real_failed_location_pick, variable)
-        real_failed_grasp_time, real_failed_grasp_value = pic_list(real_failed_location_grasp, variable)
-        proxy_failed_pick_time, proxy_failed_pick_value = pic_list(proxy_failed_location_pick, variable)
-        proxy_failed_grasp_time, proxy_failed_grasp_value = pic_list(proxy_failed_location_grasp, variable)
-
-        # ---------------------------------------- Step 4 - Generate array of plots ------------------------------------
-        f, axrray = plt.subplots(1, 2, figsize=(6, 3), dpi=100, sharey=True)
-        plt.subplots_adjust(wspace=0.05, hspace=0.175)
-        # Grasp
-        ax = axrray[0]
-        ax.grid()
-        ax.plot(real_failed_grasp_time, real_failed_grasp_value, label='Real')
-        ax.plot(proxy_failed_grasp_time, proxy_failed_grasp_value, label='Proxy')
-        ax.legend()
-        ax.set_ylabel(variable)
-        y_max = max(max(real_failed_pick_value), max(proxy_failed_pick_value))
-        ax.annotate('Grasp', xy=(0, 0.9 * y_max), size=15)
-        # Pick
-        ax = axrray[1]
-        ax.grid()
-        ax.plot(real_failed_pick_time, real_failed_pick_value, label='Real')
-        ax.plot(proxy_failed_pick_time, proxy_failed_pick_value, label='Proxy')
-        ax.legend()
-        y_max = max(max(real_failed_pick_value), max(proxy_failed_pick_value))
-        ax.annotate('Pick', xy=(0, 0.9 * y_max), size=15)
-
-        plt.suptitle('Comparison of Failed Real and Proxy pick' + str(comparable_pick), y=1)
-
+    compare_picks(comparable_picks, topic, main, datasets, subfolder, case, variable)
 
     plt.show()
-
-
-
-
 
 
 
@@ -324,7 +308,6 @@ if __name__ == "__main__":
     # print('Picks starts at %.2f and ends at %.2f' %(start, end))
     # agg = agg_linear_trend(proxy_pic_values)
     # agg_located = round(agg_linear_trend(proxy_pic_values[start_idx:end_idx]), 2)
-
 
 
     #

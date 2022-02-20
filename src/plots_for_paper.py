@@ -499,7 +499,7 @@ def slope(x, y, t_start, t_end):
 
 def strip_and_box(dataframe, feature, case, variable):
 
-    fig = plt.figure(figsize=(4, 4))
+    fig = plt.figure(figsize=(3, 2))
 
     # OSU color RGB (241, 93, 34), hex (#F15D22)
     if case == 'failed':
@@ -507,7 +507,7 @@ def strip_and_box(dataframe, feature, case, variable):
     else:
         my_pal = {"Real Tree": "#387A23", "Apple Proxy": "#A9D18E"}
 
-    bplot = sns.boxplot(x='level_1', y=feature, data=dataframe, palette='colorblind', width=0.4, boxprops=dict(alpha=.4))
+    bplot = sns.boxplot(x='level_1', y=feature, data=dataframe, palette='colorblind', width=0.4, boxprops=dict(alpha=.9))
     # bplot = sns.boxplot(x='level_1', y=feature, data=dataframe, palette=my_pal, width=0.4, boxprops=dict(alpha=.4))
     bplot = sns.stripplot(x='level_1', y=feature, data=dataframe, color='black', size=4, alpha=.6)
     # bplot = sns.stripplot(x='level_1', y=col, data=df3)
@@ -589,6 +589,7 @@ def temporal(locations, topic, variable, chunk):
 
                 # Other exotic features
                 agg_lin = agg_linear_trend(values[start_idx: end_idx], chunk)
+                # agg_lin = s
 
                 #agg_lin = agg_linear_trend(values, {"attr": "intercept", "chunk_len": 5, "f_agg": "min"})
                 # other = kurtosis(values[start_idx: end_idx])
@@ -744,18 +745,17 @@ def simple_classifier(X_train_list, y_train_list, X_test_list, y_test_list):
     print('\n')
 
 
-
 if __name__ == "__main__":
 
     # --- Data Location
     main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
     datasets = ['3_proxy_winter22_x1', '5_real_fall21_x1', '1_proxy_rob537_x1']
-    stage = 'GRASP'
+    stage = 'PICK'
     subfolder = '__for_proxy_real_comparison'
 
     # --- Variable that we wish to analyze
     variables = [' force_z', ' f1_acc_z', ' f3_acc_z', ' torque_z']
-    variable = variables[1]
+    variable = variables[0]
 
     # Assign the topic
     if variable == ' force_z' or variables == ' force_x' or variables == ' force_y' or variable == ' torque_z':
@@ -803,7 +803,7 @@ if __name__ == "__main__":
 
     av_list = []
     av_ref = 1
-    it = 5    #Chunk size
+    it = 17    #Chunk size
 
     # ---------------------------------------------- Failed Cases ------------------------------------------------------
     case = 'failed'
