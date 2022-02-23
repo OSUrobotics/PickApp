@@ -13,6 +13,11 @@ from scipy.stats import linregress, skew
 from scipy.signal import cwt, find_peaks_cwt, ricker, welch
 from collections import defaultdict
 import tqdm
+import dtw
+from dtw import *
+# from dtaidistance import dtw
+# from dtaidistance import dtw_visualisation as dtwvis
+from scipy import stats
 
 def _aggregate_on_chunks(x, f_agg, chunk_len):
     """
@@ -116,7 +121,7 @@ def pic_list(file, variable):
 
     # ---- Step 2: Read the reference readings (whether initial or last) to make the offset
     # Reference value
-    if variable == " force_z":
+    if variable == " force_z" or variable == " f1_acc_z":
         if '/GRASP/' in file:
             initial_value = df.iloc[-1][variable]
         if '/PICK/' in file:
@@ -167,7 +172,7 @@ def crossings(x, y):
         x_init = tc[0]
         x_end = tc[1]
         x_init_idx = tc_idx[0]
-        x_end_idx = tc_idx[1]
+        x_end_idx = tc_idx[1] + 5
 
     elif len(tc) == 1:
         # If only one zero-crossing is detected, try increasing the offset value
@@ -199,13 +204,16 @@ def crossings(x, y):
     return x_init, x_end, x_init_idx, x_end_idx
 
 
-def compare_picks(comparable_picks, topic, main, datasets, subfolder, case, variable):
+def compare_picks(reals, proxys, topic, main, datasets, subfolder, case, variable):
 
-    for comparable_pick in comparable_picks:
+    distances = []
+    best_alignment = 5000       # Start with high value
+
+    for real, proxy in zip(reals, proxys):
 
         # ------------------------------------- Step 1 - Concatenated Folders ------------------------------------------
-        proxy_pick = str(comparable_pick) + '-10'  # number 10 are the ones without noise added
-        real_pick = comparable_pick
+        proxy_pick = proxy
+        real_pick = real
         # Build name
         real_pick_file = 'real_apple_pick_' + str(real_pick) + '_pick_' + str(topic) + '.csv'
         real_grasp_file = 'real_apple_pick_' + str(real_pick) + '_grasp_' + str(topic) + '.csv'
@@ -224,46 +232,78 @@ def compare_picks(comparable_picks, topic, main, datasets, subfolder, case, vari
         proxy_pick_time, proxy_pick_value = pic_list(proxy_location_pick, variable)
         proxy_grasp_time, proxy_grasp_value = pic_list(proxy_location_grasp, variable)
 
-        # ---------------------------------------- Step 3 - Generate array of plots ------------------------------------
-        f, axrray = plt.subplots(1, 2, figsize=(6, 2), dpi=100, sharey=True)
-        plt.subplots_adjust(wspace=0.05, hspace=0.175)
+        # ---------------------------------------- Step 4 - Dynamic Time Warping ---------------------------------------
 
-        if variable == ' force_z':
-            legend_loc = 'upper right'
-        else:
-            legend_loc = 'lower right'
+        # Temporal Analysis
+        a, b, c, d = crossings(real_pick_time, real_pick_value)
+        reals = real_pick_value[c:d]
+        # plt.plot(reals)
 
-        # Grasp
-        ax = axrray[0]
-        ax.grid()
-        ax.plot(real_grasp_time, real_grasp_value, label='Real', color="#de8f05")
-        ax.plot(proxy_grasp_time, proxy_grasp_value, label='Proxy', color="#0173b2")
-        ax.legend(loc=legend_loc)
-        ax.set_ylabel(variable)
-        # Location of the Pick and Grasp Labels
-        y_max = max(np.max(real_pick_value), np.max(proxy_pick_value))
-        if y_max > 1:
-            ax.annotate('Grasp', xy=(0, 0.8 * y_max), size=15)
-        else:
-            ax.annotate('Grasp', xy=(0, -0.8), size=15)
+        e, f, g, h = crossings(proxy_pick_time, proxy_pick_value)
+        # plt.plot(proxy_pick_value)
+        proxys = proxy_pick_value[g:h]
+        # plt.plot(proxys)
 
-        # Pick
-        ax = axrray[1]
-        ax.grid()
-        ax.plot(real_pick_time, real_pick_value, label='Real', color="#de8f05")
-        ax.plot(proxy_pick_time, proxy_pick_value, label='Proxy', color="#0173b2")
-        ax.legend(loc=legend_loc)
-        # Location of the Pick and Grasp Labels
-        y_max = max(np.max(real_pick_value), np.max(proxy_pick_value))
-        if y_max > 1:
-            ax.annotate('Pick', xy=(0, 0.8 * y_max), size=15)
-        else:
-            ax.annotate('Pick', xy=(0, -0.8), size=15)
+        # ---- Dynamic Time Warping ----
+        alignment = dtw(proxys, reals, keep_internals=True)
+        # alignment = dtw(proxy_grasp_value, real_grasp_value, keep_internals=True)
 
-        if case == "success":
-            plt.suptitle('Comparison of -- Successful -- Real and Proxy pick' + str(comparable_pick), y=1)
-        elif case == "failed":
-            plt.suptitle('Comparison of -- Failed -- Real and Proxy pick' + str(comparable_pick), y=1)
+        # if True:
+        if alignment.distance < best_alignment:
+            best_alignment = alignment.distance
+            print(real, proxy, alignment.distance)
+            #
+            #     # Display the warping curve, i.e. the alignment curve
+            #
+            alignment.plot(type="alignment")
+            alignment.plot(type="threeway")
+            alignment.plot(type="twoway", offset=10)
+            distances.append(alignment.distance)
+
+            # ---------------------------------------- Step 3 - Generate array of plots ------------------------------------
+
+            f, axrray = plt.subplots(1, 2, figsize=(6, 2), dpi=100, sharey=True)
+            plt.subplots_adjust(wspace=0.05, hspace=0.175)
+
+            if variable == ' force_z':
+                legend_loc = 'upper right'
+            else:
+                legend_loc = 'lower right'
+
+            # Grasp
+            ax = axrray[0]
+            ax.grid()
+            ax.plot(real_grasp_time, real_grasp_value, label='Real', color="#de8f05")
+            ax.plot(proxy_grasp_time, proxy_grasp_value, label='Proxy', color="#0173b2")
+            ax.legend(loc=legend_loc)
+            ax.set_ylabel(variable)
+            # Location of the Pick and Grasp Labels
+            y_max = max(np.max(real_pick_value), np.max(proxy_pick_value))
+            if y_max > 1:
+                ax.annotate('Grasp', xy=(0, 0.8 * y_max), size=15)
+            else:
+                ax.annotate('Grasp', xy=(0, -0.8), size=15)
+
+            # Pick
+            ax = axrray[1]
+            ax.grid()
+            ax.plot(real_pick_time, real_pick_value, label='Real', color="#de8f05")
+            ax.plot(proxy_pick_time, proxy_pick_value, label='Proxy', color="#0173b2")
+            ax.legend(loc=legend_loc)
+            # Location of the Pick and Grasp Labels
+            y_max = max(np.max(real_pick_value), np.max(proxy_pick_value))
+            if y_max > 1:
+                ax.annotate('Pick', xy=(0, 0.8 * y_max), size=15)
+            else:
+                ax.annotate('Pick', xy=(0, -0.8), size=15)
+
+            if case == "success":
+                plt.suptitle('Comparison of -- Successful -- Real and Proxy pick' + str(real) + 'vs' + proxy + ' ' + str(alignment.distance), y=1)
+            elif case == "failed":
+                plt.suptitle('Comparison of -- Failed -- Real and Proxy pick' + str(real) + 'vs' + proxy + ' ' + str(alignment.distance), y=1)
+
+
+    print(np.mean(distances))
 
 
 if __name__ == "__main__":
@@ -277,7 +317,7 @@ if __name__ == "__main__":
     variables = [' force_z', ' f1_acc_z', ' f3_acc_z', ' torque_z']
     variable = variables[0]
     # Find the variables's respetive topic
-    if variable == ' force_z' or variables == ' force_x' or variables == ' force_y' or variable == ' torque_z':
+    if variable == ' force_z' or variable == ' force_x' or variable == ' force_y' or variable == ' torque_z':
         topic = 'wrench'
     elif variable == ' f1_acc_x' or variable == ' f1_acc_y' or variable == ' f1_acc_z' or variable == ' f1_gyro_x':
         topic = 'f1_imu'
@@ -289,14 +329,44 @@ if __name__ == "__main__":
     offset = 10
 
     # ----------------------------------------- A - SUCCESSFUL PICKS ---------------------------------------------------
-    comparable_picks = [16, 31, 43, 64, 71, 72]
     case = 'success'
-    compare_picks(comparable_picks, topic, main, datasets, subfolder, case, variable)
+    # Comparable picks
+    # 1 - Pairs with the lowest noise
+    # real_picks = [10, 16, 30, 31, 43, 50, 51, 53, 60, 64, 6, 70, 71, 72, 73, 74]
+    # proxy_picks = ['10-10', '16-12', '30-12', '31-10', '43-10', '50-10', '51-10', '53-7', '60-5', '64-12', '6-6', '70-11', '71-7', '72-0', '73-8', '74-0']
+    # Lowest DTW from these pairs
+    real_picks = [43]
+    proxy_picks = ['43-10']
 
-    # ----------------------------------------- B - FAILED PICKS -------------------------------------------------------
-    comparable_picks = [15, 4]
+    # All pairs of real and proxys with same initial pose
+    # real_picks = [10, 10, 10, 10, 10, 10, 16, 16, 16, 16, 16, 16, 16, 16, 16, 30, 30, 30, 30, 30, 30, 30, 30, 30, 31, 31, 31, 31, 31, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 50, 50, 50, 50, 50, 51, 51, 51, 51, 51, 51, 53, 60, 60, 60, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 6, 6, 6, 6, 6, 6, 6, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 73, 73, 73, 73, 73, 73, 73, 73, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74]
+    # proxy_picks = ['10-10', '10-1', '10-1', '10-3', '10-7', '10-9', '16-10', '16-12', '16-2', '16-3', '16-4', '16-5', '16-5', '16-7', '16-9', '30-0', '30-12', '30-1', '30-2', '30-5', '30-6', '30-7', '30-8', '30-9', '31-10', '31-5', '31-6', '31-7', '31-8', '43-0', '43-10', '43-11', '43-12', '43-12', '43-12', '43-4', '43-4', '43-6', '43-7', '43-9', '50-0', '50-10', '50-10', '50-10', '50-3', '51-10', '51-10', '51-10', '51-10', '51-5', '51-5', '53-7', '60-5', '60-6', '60-8', '64-10', '64-11', '64-12', '64-12', '64-2', '64-2', '64-4', '64-4', '64-4', '64-7', '64-8', '64-9', '6-1', '6-1', '6-1', '6-1', '6-5', '6-6', '6-6', '70-11', '70-12', '70-1', '70-2', '70-3', '70-3', '70-5', '70-5', '70-7', '70-9', '71-10', '71-11', '71-11', '71-11', '71-11', '71-4', '71-4', '71-7', '71-8', '71-9', '72-0', '72-10', '72-11', '72-12', '72-12', '72-2', '72-3', '72-4', '72-6', '72-7', '72-8', '72-9', '73-0', '73-10', '73-10', '73-2', '73-3', '73-3', '73-8', '73-9', '74-0', '74-0', '74-12', '74-2', '74-2', '74-2', '74-5', '74-5', '74-5', '74-8', '74-8']
+    # Lowest DTW from these pairs
+    # real_picks = [43]
+    # proxy_picks = ['43-10']
+
+    compare_picks(real_picks, proxy_picks, topic, main, datasets, subfolder, case, variable)
+
+
+    # # ----------------------------------------- B - FAILED PICKS -----------------------------------------------------
     case = 'failed'
-    compare_picks(comparable_picks, topic, main, datasets, subfolder, case, variable)
+    # Comparable picks
+
+    # 1 - Pairs with the lowest noise
+    # real_picks = [12, 13, 14, 15, 17, 18, 19, 1, 26, 27, 28, 29, 2, 32, 35, 39, 44, 45, 47, 49, 4, 54, 55, 56, 5, 68, 69, 8, 9]
+    # proxy_picks = ['12-6', '13-5', '14-2', '15-10', '17-9', '18-0', '19-9', '1-1', '26-4', '27-7', '28-1', '29-5', '2-3', '32-1', '35-2', '39-1', '44-1', '45-0', '47-1', '49-2', '4-2', '54-5', '55-11', '56-12', '5-6', '68-6', '69-9', '8-2', '9-4']
+    # Lowest DTW from these pairs
+    # real_picks = [13]
+    # proxy_picks = ['13-5']
+
+    # 2 - All pairs of real and proxys with same initial pose
+    # real_picks = [12, 12, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 17, 17, 17, 17, 18, 18, 18, 18, 19, 19, 19, 19, 1, 26, 26, 26, 26, 26, 26, 26, 26, 26, 27, 27, 27, 27, 27, 27, 27, 28, 28, 28, 28, 29, 29, 29, 29, 29, 29, 29, 2, 2, 2, 2, 2, 2, 2, 32, 32, 32, 32, 32, 32, 35, 35, 35, 35, 35, 35, 35, 35, 35, 39, 39, 39, 44, 44, 44, 44, 44, 44, 45, 45, 45, 47, 47, 47, 47, 47, 49, 49, 49, 49, 49, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 54, 54, 54, 54, 54, 54, 55, 55, 55, 55, 55, 55, 55, 56, 56, 56, 56, 56, 56, 5, 5, 5, 5, 68, 68, 68, 68, 68, 68, 68, 68, 68, 69, 69, 69, 69, 69, 69, 69, 69, 69, 69, 69, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
+    # proxy_picks = ['12-6', '12-7', '13-0', '13-0', '13-0', '13-0', '13-1', '13-2', '13-2', '13-4', '13-5', '13-6', '13-7', '13-7', '14-2', '14-2', '14-4', '15-10', '15-10', '15-12', '15-1', '15-2', '15-2', '15-2', '15-2', '15-7', '15-8', '17-2', '17-2', '17-2', '17-9', '18-0', '18-0', '18-4', '18-4', '19-5', '19-6', '19-8', '19-9', '1-1', '26-0', '26-0', '26-0', '26-0', '26-0', '26-0', '26-4', '26-4', '26-4', '27-0', '27-1', '27-2', '27-2', '27-2', '27-7', '27-7', '28-1', '28-1', '28-1', '28-4', '29-3', '29-4', '29-5', '29-6', '29-6', '29-6', '29-6', '2-0', '2-1', '2-2', '2-3', '2-3', '2-3', '2-3', '32-0', '32-0', '32-1', '32-2', '32-3', '32-4', '35-0', '35-1', '35-2', '35-3', '35-4', '35-4', '35-4', '35-8', '35-8', '39-1', '39-1', '39-3', '44-1', '44-2', '44-3', '44-4', '44-4', '44-4', '45-0', '45-0', '45-1', '47-1', '47-3', '47-3', '47-3', '47-3', '49-2', '49-3', '49-4', '49-5', '49-5', '4-0', '4-10', '4-1', '4-2', '4-3', '4-4', '4-4', '4-6', '4-7', '4-8', '4-9', '54-11', '54-12', '54-5', '54-6', '54-7', '54-9', '55-11', '55-2', '55-3', '55-4', '55-5', '55-7', '55-8', '56-12', '56-12', '56-12', '56-12', '56-12', '56-12', '5-3', '5-3', '5-6', '5-8', '68-0', '68-0', '68-0', '68-1', '68-2', '68-2', '68-2', '68-6', '68-7', '69-0', '69-11', '69-11', '69-1', '69-1', '69-1', '69-1', '69-1', '69-6', '69-6', '69-9', '8-2', '8-3', '8-4', '8-4', '8-4', '8-4', '9-0', '9-0', '9-1', '9-1', '9-3', '9-4', '9-4', '9-4', '9-4', '9-4']
+    # Lowest DTW from these pairs
+    # real_picks = [54]
+    # proxy_picks = ['54-7']
+
+    # compare_picks(real_picks, proxy_picks, topic, main, datasets, subfolder, case, variable)
 
     plt.show()
 

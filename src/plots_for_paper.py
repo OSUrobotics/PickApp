@@ -548,13 +548,13 @@ def count_plot(proxy_picks_shapes, real_picks_shapes, case, variable):
     plt.title(variable + ' / ' + case)
 
 
-def statistics(feature):
+def statistics(feature, factor=1):
 
     # print(feature)
     feature = [x for x in feature if math.isnan(x) == False]
-    mean = round(np.mean(feature), 3)
-    stdev = round(np.std(feature), 3)
-    cv = round(stdev / mean, 3)
+    mean = round(np.mean(feature), 1) / factor
+    stdev = round(np.std(feature), 1) / factor
+    cv = round(stdev / mean, 1)
 
     return mean, stdev, cv
 
@@ -754,7 +754,7 @@ if __name__ == "__main__":
     subfolder = '__for_proxy_real_comparison'
 
     # --- Variable that we wish to analyze
-    variables = [' force_z', ' f1_acc_z', ' f3_acc_z', ' torque_z']
+    variables = [' force_z', ' f1_acc_z', ' f2_acc_z', ' f1_gyro_x']
     variable = variables[0]
 
     # Assign the topic
@@ -803,7 +803,7 @@ if __name__ == "__main__":
 
     av_list = []
     av_ref = 1
-    it = 17    #Chunk size
+    it = 5    #Chunk size
 
     # ---------------------------------------------- Failed Cases ------------------------------------------------------
     case = 'failed'
@@ -824,31 +824,29 @@ if __name__ == "__main__":
     proxy_failed_df = pd.DataFrame(data=d)
 
     # Perform t-test between real and proxy
-    print('T-test for failed picks')
-    raggs = [x for x in raggs if math.isnan(x) == False]
-    paggs = [x for x in paggs if math.isnan(x) == False]
+    # print('T-test for failed picks')
+    # raggs = [x for x in raggs if math.isnan(x) == False]
+    # paggs = [x for x in paggs if math.isnan(x) == False]
 
-    failed_val_set = raggs
-    failed_train_set = paggs
+    # failed_val_set = raggs
+    # failed_train_set = paggs
+    # s_fa, p_fa = stats.ttest_ind(raggs, paggs)  # Static and P-Values
+    # print(s_fa, p_fa)
 
-
-    s_fa, p_fa = stats.ttest_ind(raggs, paggs)  # Static and P-Values
-    print(s_fa, p_fa)
-
+    print('---------------------------------- Failed ------------------------------------')
     print("\n**** Real Statistics ****")
     print('          Mean,  Std, Cv')
-    # print("Peak : ", statistics(rpeak_values))
-    # print("Slope: ", statistics(rslopes))
-    # print("AUCS : ", statistics(raucs))
-    print("Feature : ", statistics(raggs))
+    print("Peak : ", statistics(rpeak_values))
+    print("Slope: ", statistics(rslopes, 1))
+    print("AUCS : ", statistics(raucs))
+    # print("ALT : ", statistics(raggs))
 
-    #
     print("\n**** Proxy Statistics ****")
     print('          Mean,  Std, Cv')
-    # print("Peak : ", statistics(ppeak_values))
-    # print("Slope: ", statistics(pslopes))
-    # print("AUCS : ", statistics(paucs))
-    print("Feature : ", statistics(paggs))
+    print("Peak : ", statistics(ppeak_values))
+    print("Slope: ", statistics(pslopes, 1))
+    print("AUCS : ", statistics(paucs))
+    # print("ALT : ", statistics(paggs))
 
     # ... Plots ...
     df3 = pd.concat([real_failed_df, proxy_failed_df], axis=1, keys=['Real Tree', 'Apple Proxy']).stack(0)
@@ -880,39 +878,38 @@ if __name__ == "__main__":
     proxy_success_df = pd.DataFrame(data=d)
 
 
-    print('T-test for success picks')
-    raggs = [x for x in raggs if math.isnan(x) == False]
-    paggs = [x for x in paggs if math.isnan(x) == False]
+    # print('T-test for success picks')
+    # raggs = [x for x in raggs if math.isnan(x) == False]
+    # paggs = [x for x in paggs if math.isnan(x) == False]
+    # success_val_set = raggs
+    # success_train_set = paggs
+    # print('type: ', type(success_val_set))
 
-    success_val_set = raggs
-    success_train_set = paggs
+    # s_su, p_su = stats.ttest_ind(raggs, paggs)
+    # print(s_su, p_su)
 
-    print('type: ', type(success_val_set))
+    # av = np.mean([p_fa,p_su])
+    # print('Average is: ', av)
+    # av_list.append(av)
 
-    s_su, p_su = stats.ttest_ind(raggs, paggs)
-    print(s_su, p_su)
+    # if av < av_ref:
+    #     av_ref = av
+    #     it_ref = it
 
-    av = np.mean([p_fa,p_su])
-    print('Average is: ', av)
-    av_list.append(av)
-
-    if av < av_ref:
-        av_ref = av
-        it_ref = it
-
+    print('---------------------------------- Success ------------------------------------')
     print("\n**** Real Statistics ****")
     print('          Mean,  Std, Cv')
-    # print("Peak : ", statistics(rpeak_values))
-    # print("Slope: ", statistics(rslopes))
-    # print("AUCS : ", statistics(raucs))
-    print("Feature : ", statistics(raggs))
+    print("Peak : ", statistics(rpeak_values))
+    print("Slope: ", statistics(rslopes, 1))
+    print("AUCS : ", statistics(raucs))
+    # print("Feature : ", statistics(raggs))
     #
     print("\n**** Proxy Statistics ****")
     print('          Mean,  Std, Cv')
-    # print("Peak : ", statistics(ppeak_values))
-    # print("Slope: ", statistics(pslopes))
-    # print("AUCS : ", statistics(paucs))
-    print("Feature : ", statistics(paggs))
+    print("Peak : ", statistics(ppeak_values))
+    print("Slope: ", statistics(pslopes, 1))
+    print("AUCS : ", statistics(paucs))
+    # print("Feature : ", statistics(paggs))
 
     # ... Plots ...
     df3 = pd.concat([real_success_df, proxy_success_df], axis=1, keys=['Real Tree', 'Apple Proxy']).stack(0)
@@ -927,41 +924,41 @@ if __name__ == "__main__":
 
     plt.show()
 
-    # ... Run classifier
-    # Training Set
-    X_train_f = failed_train_set
-    y_train_f = [0]*len(X_train_f)
-
-    X_train_s = success_train_set
-    y_train_s = [1]*len(X_train_s)
-
-    X_train = X_train_f + X_train_s
-    y_train = y_train_f + y_train_s
-
-    # Validation Set
-    X_val_f = failed_val_set
-    y_val_f = [0] * len(X_val_f)
-
-    X_val_s = success_val_set
-    y_val_s = [1] * len(X_val_s)
-
-    X_val = X_val_f + X_val_s
-    y_val = y_val_f + y_val_s
-
-    print('Traini set')
-    print(X_train)
-    print(y_train)
-
-
-    print('Validation set')
-    print(X_val)
-    print(y_val)
-
-
-
-    print(av, it)
-    print(av_list)
-
-    rfc(X_train, y_train, X_val, y_val)
-
-    # simple_classifier(X_train, y_train, X_val, y_val)
+    # # ... Run classifier
+    # # Training Set
+    # X_train_f = failed_train_set
+    # y_train_f = [0]*len(X_train_f)
+    #
+    # X_train_s = success_train_set
+    # y_train_s = [1]*len(X_train_s)
+    #
+    # X_train = X_train_f + X_train_s
+    # y_train = y_train_f + y_train_s
+    #
+    # # Validation Set
+    # X_val_f = failed_val_set
+    # y_val_f = [0] * len(X_val_f)
+    #
+    # X_val_s = success_val_set
+    # y_val_s = [1] * len(X_val_s)
+    #
+    # X_val = X_val_f + X_val_s
+    # y_val = y_val_f + y_val_s
+    #
+    # print('Traini set')
+    # print(X_train)
+    # print(y_train)
+    #
+    #
+    # print('Validation set')
+    # print(X_val)
+    # print(y_val)
+    #
+    #
+    #
+    # print(av, it)
+    # print(av_list)
+    #
+    # rfc(X_train, y_train, X_val, y_val)
+    #
+    # # simple_classifier(X_train, y_train, X_val, y_val)
