@@ -25,6 +25,7 @@ from mpl_toolkits import mplot3d
 def exam(x):
     return x**2
 
+
 def set_axes_equal(ax):
     '''Make axes of 3D plot have equal scale so that spheres appear as spheres,
     cubes as cubes, etc..  This is one possible solution to Matplotlib's

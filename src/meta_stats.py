@@ -8,70 +8,94 @@ from os.path import exists
 import ast
 import math
 import numpy as np
+import sys
+import argparse
 from tqdm import tqdm       # Progress Bar Package
 
 
 class MetadataStats:
 
     def __init__(self):
-        # Initialize variables and parameters
 
         self.main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
-        self.dataset = '3_proxy_winter22_x1/'
+        self.dataset = '3_proxy_winter22_x1'
         self.location = self.main + self.dataset + 'metadata/'
 
     def label_counter(self):
         """
-        Counts the success and failures among all the metadata files
+        Counts the success and failures from the metadata files of a single dataset
         """
 
-        location = self.location
+        location = self.main + self.dataset + '/metadata/'
 
         # Initialize variables and parameters
         success = 0
         failures = 0
         count = 0
 
-        real_apple_picks = 77   # Number of Real Apple Picks performed before, on which the proxy-pick poses are based
-        attempts_at_proxy = 13  # Attempts performed at proxy adding noise to the pose from the real-apple pick
+        for filename in os.listdir(location):
+            # print(filename)
+            rows = []
+            with open(location + filename, 'r') as csv_file:  # 'with' closes file automatically afterwards
+                # Create  a csv object
+                csv_reader = csv.reader(csv_file, delimiter=',')
+                # Extract each data row one by one
+                for row in csv_reader:
+                    rows.append(row)
 
-        for i in range(real_apple_picks):
+                if rows[1][10] == 's':
+                    success = success + 1
+                else:
+                    failures = failures + 1
 
-            for j in range(attempts_at_proxy):
+        # Get the suffix of the filenames, because it varies from one dataset to another
+        # for filename in os.listdir(location):
+        #     name = str(filename)
+        #     break
+        # end = name.index('pick')
+        # name = name[:end + 4]
+        # print(name)
 
-                file = 'winter22_apple_proxy_pick' + str(i) + '-' + str(j) + '_metadata.csv'
-                rows = []
-
-                if exists(location + file):
-                    # print(file)
-                    count += 1
-
-                    with open(location + file) as csv_file:
-                        # Create  a csv object
-                        csv_reader = csv.reader(csv_file, delimiter=',')
-                        # Extract each data row one by one
-                        for row in csv_reader:
-                            rows.append(row)
-
-                        if rows[1][10] == 's':
-                            success = success + 1
-                        else:
-                            failures = failures + 1
+        # real_apple_picks = 77   # Number of Real Apple Picks performed before, on which the proxy-pick poses are based
+        # attempts_at_proxy = 13  # Attempts performed at proxy adding noise to the pose from the real-apple pick
+        #
+        # for i in range(real_apple_picks):
+        #
+        #     for j in range(attempts_at_proxy):
+        #
+        #         file = name + str(i) + '-' + str(j) + '_metadata.csv'
+        #         rows = []
+        #
+        #         if exists(location + file):
+        #             # print(file)
+        #             count += 1
+        #
+        #             with open(location + file) as csv_file:     # 'with' closes file automatically afterwards
+        #                 # Create  a csv object
+        #                 csv_reader = csv.reader(csv_file, delimiter=',')
+        #                 # Extract each data row one by one
+        #                 for row in csv_reader:
+        #                     rows.append(row)
+        #
+        #                 if rows[1][10] == 's':
+        #                     success = success + 1
+        #                 else:
+        #                     failures = failures + 1
 
         return success, failures, count
 
     def get_info(self, column):
         """ Extract values at the column of each metadata file, and concatenate it into a single list
         """
-
-        location = self.location
+        location = self.main + self.dataset + 'metadata/'
 
         metadata = []
         for file in os.listdir(location):
 
+            # print(file)
             rows = []
 
-            with open(location + file) as csv_file:
+            with open(location + file) as csv_file:             # 'with' closes file automatically afterwards
 
                 # Create  a csv object
                 csv_reader = csv.reader(csv_file, delimiter=',')

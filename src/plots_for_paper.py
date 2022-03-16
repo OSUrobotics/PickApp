@@ -550,6 +550,9 @@ def count_plot(proxy_picks_shapes, real_picks_shapes, case, variable):
 
 def statistics(feature, factor=1):
 
+    # Factor is the speed of movement of the arm in [m/s]
+
+
     # print(feature)
     feature = [x for x in feature if math.isnan(x) == False]
     mean = round(np.mean(feature), 1) / factor
@@ -837,16 +840,16 @@ if __name__ == "__main__":
     print("\n**** Real Statistics ****")
     print('          Mean,  Std, Cv')
     print("Peak : ", statistics(rpeak_values))
-    print("Slope: ", statistics(rslopes, 1))
-    print("AUCS : ", statistics(raucs))
-    # print("ALT : ", statistics(raggs))
+    print("Slope: ", statistics(rslopes, 0.1/3))
+    print("AUCS : ", statistics(raucs, 30))
+    print("ALT : ", statistics(raggs))
 
     print("\n**** Proxy Statistics ****")
     print('          Mean,  Std, Cv')
     print("Peak : ", statistics(ppeak_values))
-    print("Slope: ", statistics(pslopes, 1))
-    print("AUCS : ", statistics(paucs))
-    # print("ALT : ", statistics(paggs))
+    print("Slope: ", statistics(pslopes, 0.1/3))
+    print("AUCS : ", statistics(paucs, 30))
+    print("ALT : ", statistics(paggs))
 
     # ... Plots ...
     df3 = pd.concat([real_failed_df, proxy_failed_df], axis=1, keys=['Real Tree', 'Apple Proxy']).stack(0)
@@ -900,16 +903,16 @@ if __name__ == "__main__":
     print("\n**** Real Statistics ****")
     print('          Mean,  Std, Cv')
     print("Peak : ", statistics(rpeak_values))
-    print("Slope: ", statistics(rslopes, 1))
-    print("AUCS : ", statistics(raucs))
-    # print("Feature : ", statistics(raggs))
+    print("Slope: ", statistics(rslopes, 0.1/3))
+    print("AUCS : ", statistics(raucs, 30))
+    print("Feature : ", statistics(raggs))
     #
     print("\n**** Proxy Statistics ****")
     print('          Mean,  Std, Cv')
     print("Peak : ", statistics(ppeak_values))
-    print("Slope: ", statistics(pslopes, 1))
-    print("AUCS : ", statistics(paucs))
-    # print("Feature : ", statistics(paggs))
+    print("Slope: ", statistics(pslopes, 0.1/3))
+    print("AUCS : ", statistics(paucs, 30))
+    print("Feature : ", statistics(paggs))
 
     # ... Plots ...
     df3 = pd.concat([real_success_df, proxy_success_df], axis=1, keys=['Real Tree', 'Apple Proxy']).stack(0)

@@ -118,7 +118,6 @@ for pick in success_list:
         # data_5 = pd.read_csv(location + name + stage + topics[5] + '.csv', header=None)
         # data_6 = pd.read_csv(location + name + stage + topics[6] + '.csv', header=None)
 
-
         df = pd.concat([data_0, data_1, data_2, data_3, data_4, data_5, data_6], axis=1)
 
 

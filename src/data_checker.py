@@ -62,7 +62,3 @@ else:
         if not os.path.exists(location + file):
             print('\n Following file missing:')
             print(file)
-
-
-
-
