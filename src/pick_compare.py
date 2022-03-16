@@ -34,11 +34,10 @@ def number_from_filename(filename):
     :param filename:
     :return: pick number
     """
-    name = str(filename)
 
+    name = str(filename)
     start = name.index('pick')
     end = name.index('meta')
-
     number = name[start + 4:end - 1]
 
     return number
@@ -53,14 +52,11 @@ def pick_info_from_metadata(location, file, index):
     :return: information
     """
 
-    # Open metadata and get the label
     rows = []
     with open(location + file) as csv_file:
 
-        # Create  a csv object
         csv_reader = csv.reader(csv_file, delimiter=',')
 
-        # Extract each data row one by one
         for row in csv_reader:
             rows.append(row)
 
@@ -72,16 +68,17 @@ def pick_info_from_metadata(location, file, index):
 def same_pose_picks(real_picks_location, proxy_picks_location, label):
     """
     Compares the labels from real and proxy picks and outputs lists of pairs with the same pose and label
-    :param real_picks_location:
-    :param proxy_picks_location:
-    :param label:
-    :return:
+    :param real_picks_location: folder with real apple picks
+    :param proxy_picks_location: folder with proxy picks
+    :param label: whether success or failed picks
+    :return: Real and Pick list, where the picks are comparable element-wise
     """
+
+    print("Finding real and proxy picks that had the same pose and label...")
 
     real_list = []
     proxy_list = []
 
-    # ---- Same Outcome and pose ----
     for file in os.listdir(real_picks_location):
 
         # Step 1: Get the real-pick number from the filename
@@ -121,6 +118,7 @@ def same_pose_picks(real_picks_location, proxy_picks_location, label):
                 if real_outcome == proxy_outcome:
                     proxy_id = number_proxy_noise
 
+                    # TODO
                     # print("\nThere is a match:")
                     # print(proxy_outcome)
                     # print(file)
@@ -139,13 +137,15 @@ def same_pose_picks(real_picks_location, proxy_picks_location, label):
 
 def same_pose_lowest_noise_picks(real_picks_location, proxy_picks_location, label):
     """
-    Compares the labels from real and proxy picks and outputs lists of pairs with the same pose and label and lowest
-    noise which represent the closest
-    :param real_picks_location:
-    :param proxy_picks_location:
-    :param label:
-    :return:
+    Compares the labels from real and proxy picks and outputs lists of pairs with the same pose, same label and lowest
+    noise (which represents the closest proxy pick)
+    :param real_picks_location: folder with real apple picks
+    :param proxy_picks_location: folder with proxy picks
+    :param label: whether success or failed picks
+    :return: Real and Pick list, where the picks are comparable element-wise
     """
+
+    print("Finding real and proxy picks that had the same pose, label and lowest noise (closes)...")
 
     real_list = []
     proxy_list = []
@@ -199,6 +199,7 @@ def same_pose_lowest_noise_picks(real_picks_location, proxy_picks_location, labe
                     ang_lowest_noise = ang_noise
                     proxy_id = number_proxy_noise
 
+                    # TODO
                     # print("\nThere is a match:")
                     # print(proxy_outcome)
                     # print(file)
@@ -206,7 +207,6 @@ def same_pose_lowest_noise_picks(real_picks_location, proxy_picks_location, labe
                     # print('Cart noise is:', cart_noise)
                     # print('Ang noise is:', ang_noise)
 
-        # NOTE: Unindent twice this if
         if not proxy_id == '1' and real_outcome == label:
             proxy_list.append(proxy_id)
             real_list.append(int(number_real))
@@ -230,24 +230,21 @@ def _aggregate_on_chunks(x, f_agg, chunk_len):
     :return type: list
     """
     return [
-        getattr(x[i * chunk_len : (i + 1) * chunk_len], f_agg)()
+        getattr(x[i * chunk_len: (i + 1) * chunk_len], f_agg)()
         for i in range(int(np.ceil(len(x) / chunk_len)))
     ]
 
 
 def agg_linear_trend(x):
-    # Source: https://tsfresh.readthedocs.io/en/latest/_modules/tsfresh/feature_extraction/feature_calculators.html#agg_linear_trend
     """
+    Source: https://tsfresh.readthedocs.io/en/latest/_modules/tsfresh/feature_extraction/feature_calculators.html#agg_linear_trend
+
     Calculates a linear least-squares regression for values of the time series that were aggregated over chunks versus
     the sequence from 0 up to the number of chunks minus one.
-
     This feature assumes the signal to be uniformly sampled. It will not use the time stamps to fit the model.
-
     The parameters attr controls which of the characteristics are returned. Possible extracted attributes are "pvalue",
     "rvalue", "intercept", "slope", "stderr", see the documentation of linregress for more information.
-
     The chunksize is regulated by "chunk_len". It specifies how many time series values are in each chunk.
-
     Further, the aggregation function is controlled by "f_agg", which can use "max", "min" or , "mean", "median"
 
     :param x: the time series to calculate the feature of
@@ -258,11 +255,11 @@ def agg_linear_trend(x):
     :return type: pandas.Series
     """
 
-
     calculated_agg = defaultdict(dict)
     res_data = []
     res_index = []
 
+    # TODO
     # for parameter_combination in param:
     # print(param)
     # print("\nParam Combi:", parameter_combination)
@@ -305,16 +302,19 @@ def agg_linear_trend(x):
 
 def pic_list(file, variable):
     """
-    :param file:
+    Reads a csv file and returns only tha variable of interest and Time.
+    This is useful because each topic in ROS saves several channels in one single csv file. Hence we want get only the
+    data of the channel that we are interested in.
+    :param file: csv file
     :param variable: Given as a string
-    :return: Simplified list
+    :return: Simplified lists (Time list, and values list)
     """
 
-    # ---- Step 1: Turn csv into pandas - dataframe
+    # Step 1: Turn csv into pandas - dataframe
     df = pd.read_csv(file)
     # df = np.array(df)
 
-    # ---- Step 2: Read the reference readings (whether initial or last) to make the offset
+    # Step 2: Read the reference readings (whether initial or last) to make the offset
     # Reference value
     if variable == " force_z" or variable == " f1_acc_z":
         if '/GRASP/' in file:
@@ -326,7 +326,7 @@ def pic_list(file, variable):
     # Reference time
     initial_time = df.iloc[0][0]
 
-    # ---- Step 3: Subtract reference reading to all channels to ease comparison
+    # Step 3: Subtract reference reading to all channels to ease comparison
     # time = df[:, 0] - initial_time
     time = df['# elapsed time'] - initial_time
     # value = df[:, variable] - initial_value
@@ -402,10 +402,23 @@ def crossings(x, y):
     return x_init, x_end, x_init_idx, x_end_idx
 
 
-def compare_picks(reals, proxys, topic, main, datasets, subfolder, case, variable):
+def compare_picks(reals, proxys, main, datasets, subfolder, case, variable):
+    """
+    Compares the apple picks element-wise from the reals and proxys lists
+    :param reals: list of picks from real tree
+    :param proxys: list of picks from proxy
+    :param main: main folder location
+    :param datasets: list of real and proxy datasets
+    :param subfolder: subfolder location
+    :param case: whether successful or failed picks
+    :param variable: channel of interest
+    :return: none
+    """
 
     distances = []
     best_alignment_distance = 5000       # Start with high value
+
+    topic = topic_from_variable(variable)
 
     for real, proxy in zip(reals, proxys):
 
@@ -506,9 +519,11 @@ def compare_picks(reals, proxys, topic, main, datasets, subfolder, case, variabl
         ax.annotate('Pick', xy=(0, -0.8), size=15)
 
     if case == "success":
-        plt.suptitle('Comparison of -- Successful -- Real and Proxy pick' + str(best_pair[0]) + 'vs' + best_pair[1] + ' ' + str(best_alignment.distance), y=1)
+        plt.suptitle('Comparison of -- Successful -- Real and Proxy pick'
+                     + str(best_pair[0]) + 'vs' + best_pair[1] + ' ' + str(best_alignment.distance), y=1)
     elif case == "failed":
-        plt.suptitle('Comparison of -- Failed -- Real and Proxy pick' + str(best_pair[0]) + 'vs' + best_pair[1] + ' ' + str(best_alignment.distance), y=1)
+        plt.suptitle('Comparison of -- Failed -- Real and Proxy pick'
+                     + str(best_pair[0]) + 'vs' + best_pair[1] + ' ' + str(best_alignment.distance), y=1)
 
     print(np.mean(distances))
 
@@ -539,8 +554,7 @@ def topic_from_variable(variable):
     return topic
 
 
-if __name__ == "__main__":
-
+def main():
     # --- Parse Arguments from Command Line ---
     parser = argparse.ArgumentParser(description='Simple command-line program')
     parser.add_argument('--variable',
@@ -556,7 +570,6 @@ if __name__ == "__main__":
     # --- Variable & Topic ---
     variable = ' ' + args.variable
     case = args.case
-    topic = topic_from_variable(variable)
     offset = 10
 
     # --- Data Location ---
@@ -571,9 +584,15 @@ if __name__ == "__main__":
     real_picks, proxy_picks = same_pose_picks(real_picks_location, proxy_picks_location, case[0])
 
     subfolder = '__for_proxy_real_comparison'
-    compare_picks(real_picks, proxy_picks, topic, main, datasets, subfolder, case, variable)
+    compare_picks(real_picks, proxy_picks, main, datasets, subfolder, case, variable)
 
     plt.show()
+
+
+if __name__ == "__main__":
+    main()
+
+
 
 
 
