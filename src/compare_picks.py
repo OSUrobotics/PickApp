@@ -492,16 +492,14 @@ def compare_picks(reals, proxys, main, datasets, subfolder, case, variable, phas
             e, f, g, h = crossings(proxy_grasp_time, proxy_grasp_value)
             proxys = proxy_grasp_value[g:h]
 
-        # --- Step3: Dynamic Time Warping ----
+
         try:
             alignment = dtw(proxys, reals, keep_internals=True)
-
         except IndexError:
             alignment = dtw(10000, 0, keep_internals=True)
 
         # print(real, proxy, alignment.distance)
         dtw_comparison.append([real, proxy, alignment.distance])
-        # alignment = dtw(proxy_grasp_value, real_grasp_value, keep_internals=True)
         distances.append(alignment.distance)
 
         if alignment.distance < best_alignment_distance:
@@ -543,9 +541,11 @@ def compare_picks(reals, proxys, main, datasets, subfolder, case, variable, phas
     # --- Save results in csv ---
     info = [phase, variable]
     header = ['real', 'proxy', 'dtw']
-    with open('dtws.csv', 'w') as file:
+    name = variable + '__during__' + phase + '.csv'
+    target_dir = os.path.dirname(os.getcwd()) + '/results/'
+    with open(target_dir + name, 'w') as file:
         write = csv.writer(file)
-        write.writerow(info)
+        # write.writerow(info)
         write.writerow(header)
         write.writerows(dtw_comparison)
 
@@ -619,9 +619,7 @@ if __name__ == "__main__":
     main()
 
 
-
-
-
+    # TODO
     # -------------------------------------------- Step 3 - Get some features ------------------------------------------
     # Get some common features
     # start, end, start_idx, end_idx = crossings(proxy_pic_time, proxy_pic_values)        # Start and ending time of the force plot

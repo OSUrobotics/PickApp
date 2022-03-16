@@ -19,7 +19,7 @@ class MetadataStats:
 
         self.main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
         self.dataset = '3_proxy_winter22_x1'
-        self.location = self.main + self.dataset + 'metadata/'
+        self.location = self.main + self.dataset + '/metadata/'
 
     def label_counter(self):
         """
@@ -87,7 +87,7 @@ class MetadataStats:
     def get_info(self, column):
         """ Extract values at the column of each metadata file, and concatenate it into a single list
         """
-        location = self.main + self.dataset + 'metadata/'
+        location = self.main + self.dataset + '/metadata/'
 
         metadata = []
         for file in os.listdir(location):
@@ -110,6 +110,11 @@ class MetadataStats:
         return metadata
 
     def noise_stats(self, data):
+        """
+
+        :param data:
+        :return:
+        """
 
         x_noises = []
         y_noises = []
@@ -152,17 +157,29 @@ class MetadataStats:
         print("Mean: ", round(np.mean(yw_noises),3), "SD: ", round(np.std(yw_noises),3), "Percentiles: ",
               np.percentile(yw_noises, [25, 50, 75]))
 
+def main():
 
-if __name__ == "__main__":
+    # --- Parse Arguments from Command Line ---
+    parser = argparse.ArgumentParser(description='Simple command-line program')
+    parser.add_argument('--dataset',
+                        default='3_proxy_winter22_x1',
+                        type=str,
+                        help='Select the dataset from: "1_proxy_rob537_x1", "3_proxy_winter22_x1" or "5_real_fall21_x1"')
+    args = parser.parse_args()
 
-    # Create Object
+    # --- Create Object ---
     a = MetadataStats()
+    a.dataset = args.dataset
 
+    # --- Call Functions from the Class ---
     success, failures, count = a.label_counter()
     print('Success Rate: %.2f ' % (success / (success + failures)))
 
     # Calculate functions
     b = a.get_info(16)
-    c = a.noise_stats(b)
+    a.noise_stats(b)
 
+
+if __name__ == "__main__":
+    main()
 
