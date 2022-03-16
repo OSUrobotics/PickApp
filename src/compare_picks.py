@@ -1,16 +1,10 @@
 # @Time : 2/15/2022 2:12 PM
 # @Author : Alejandro Velasquez
 
-
-import os
 import csv
 import ast
-
-import sys
 import argparse
-
 import os
-import math
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,7 +19,6 @@ import dtw
 from dtw import *
 # from dtaidistance import dtw
 # from dtaidistance import dtw_visualisation as dtwvis
-from scipy import stats
 
 
 def number_from_filename(filename):
@@ -74,7 +67,7 @@ def same_pose_picks(real_picks_location, proxy_picks_location, label):
     :return: Real and Pick list, where the picks are comparable element-wise
     """
 
-    print("Finding real and proxy picks that had the same pose and label...")
+    print("\nFinding real and proxy picks that had the same pose and label...")
 
     real_list = []
     proxy_list = []
@@ -402,9 +395,51 @@ def crossings(x, y):
     return x_init, x_end, x_init_idx, x_end_idx
 
 
-def compare_picks(reals, proxys, main, datasets, subfolder, case, variable):
+def pick_subplot(axrray, phase, real_times, real_values, proxy_times, proxy_values, variable):
+    """
+    Creat the subplots of the 'Grasp' and 'Pick' phase of an aple pick
+    :param axrray: array of subplots
+    :param phase: whether 'Grasp' or 'Pick'
+    :param real_times: python list with the time values from real pick
+    :param real_values: python list with the variable values from real pick
+    :param proxy_times: python list with the time values from proxy pick
+    :param proxy_values: python list with the variable values from proxy pick
+    :param variable: channel of interest
+    :return: none
+    """
+
+    if variable == ' force_z':
+        legend_loc = 'upper right'
+    else:
+        legend_loc = 'lower right'
+
+    if phase == 'Grasp':
+        position = 0
+    else:
+        position = 1
+
+    ax = axrray[position]
+    ax.grid()
+    ax.plot(real_times, real_values, label='Real', color="#de8f05")
+    ax.plot(proxy_times, proxy_values, label='Proxy', color="#0173b2")
+    ax.legend(loc=legend_loc)
+
+    # Place ylabel only in the left subplot
+    if phase == 'Grasp':
+        ax.set_ylabel(variable)
+
+    # Location of the Pick and Grasp Labels
+    y_max = max(np.max(real_values), np.max(proxy_values))
+    if y_max > 1:
+        ax.annotate(phase, xy=(0, 0.8 * y_max), size=15)
+    else:
+        ax.annotate(phase, xy=(0, -0.8), size=15)
+
+
+def compare_picks(reals, proxys, main, datasets, subfolder, case, variable, phase):
     """
     Compares the apple picks element-wise from the reals and proxys lists
+    :param phase: when the dynamic time warping is going to take place
     :param reals: list of picks from real tree
     :param proxys: list of picks from proxy
     :param main: main folder location
@@ -415,14 +450,16 @@ def compare_picks(reals, proxys, main, datasets, subfolder, case, variable):
     :return: none
     """
 
+    dtw_comparison = []
     distances = []
-    best_alignment_distance = 5000       # Start with high value
+    best_alignment_distance = 5000       # Start with a high value
 
     topic = topic_from_variable(variable)
 
+    # Compare each pair of picks from real and proxy
     for real, proxy in zip(reals, proxys):
 
-        # ------------------------------------- Step 1 - Concatenated Folders ------------------------------------------
+        # --- Step 1 - Concatenate Folders ---
         proxy_pick = proxy
         real_pick = real
         # Build name
@@ -436,28 +473,34 @@ def compare_picks(reals, proxys, main, datasets, subfolder, case, variable):
         proxy_location_pick = main + datasets[0] + '/PICK/' + subfolder + '/' + case + '/' + proxy_pick_file
         proxy_location_grasp = main + datasets[0] + '/GRASP/' + subfolder + '/' + case + '/' + proxy_grasp_file
 
-        # -------------------------------------------- Step 2 - Bring the data -----------------------------------------
+        # --- Step 2 - Read data ---
         # A - Successful
         real_pick_time, real_pick_value = pic_list(real_location_pick, variable)
         real_grasp_time, real_grasp_value = pic_list(real_location_grasp, variable)
         proxy_pick_time, proxy_pick_value = pic_list(proxy_location_pick, variable)
         proxy_grasp_time, proxy_grasp_value = pic_list(proxy_location_grasp, variable)
 
-        # ---------------------------------------- Step 4 - Dynamic Time Warping ---------------------------------------
+        # --- Step 3: Dynamic Time Warping ---
+        if phase == 'pick':
+            a, b, c, d = crossings(real_pick_time, real_pick_value)
+            reals = real_pick_value[c:d]
+            e, f, g, h = crossings(proxy_pick_time, proxy_pick_value)
+            proxys = proxy_pick_value[g:h]
+        elif phase == 'grasp':
+            a, b, c, d = crossings(real_grasp_time, real_grasp_value)
+            reals = real_grasp_value[c:d]
+            e, f, g, h = crossings(proxy_grasp_time, proxy_grasp_value)
+            proxys = proxy_grasp_value[g:h]
 
-        # Temporal Analysis
-        a, b, c, d = crossings(real_pick_time, real_pick_value)
-        reals = real_pick_value[c:d]
-        # plt.plot(reals)
+        # --- Step3: Dynamic Time Warping ----
+        try:
+            alignment = dtw(proxys, reals, keep_internals=True)
 
-        e, f, g, h = crossings(proxy_pick_time, proxy_pick_value)
-        # plt.plot(proxy_pick_value)
-        proxys = proxy_pick_value[g:h]
-        # plt.plot(proxys)
+        except IndexError:
+            alignment = dtw(10000, 0, keep_internals=True)
 
-        # ---- Dynamic Time Warping ----
-        alignment = dtw(proxys, reals, keep_internals=True)
-        print(real, proxy, alignment.distance)
+        # print(real, proxy, alignment.distance)
+        dtw_comparison.append([real, proxy, alignment.distance])
         # alignment = dtw(proxy_grasp_value, real_grasp_value, keep_internals=True)
         distances.append(alignment.distance)
 
@@ -465,7 +508,6 @@ def compare_picks(reals, proxys, main, datasets, subfolder, case, variable):
             best_alignment_distance = alignment.distance
             best_alignment = alignment
             best_pair = [real, proxy]
-            print(real, proxy, alignment.distance)
             best_real_grasp_time = real_grasp_time
             best_real_grasp_value = real_grasp_value
             best_proxy_grasp_time = proxy_grasp_time
@@ -474,58 +516,38 @@ def compare_picks(reals, proxys, main, datasets, subfolder, case, variable):
             best_real_pick_value = real_pick_value
             best_proxy_pick_time = proxy_pick_time
             best_proxy_pick_value = proxy_pick_value
+            # print(real, proxy, alignment.distance)
 
-    # --- Display the best aligment pair ---
-    print(best_pair[0], best_pair[1], best_alignment.distance)
-    best_alignment.plot(type="alignment")
-    best_alignment.plot(type="threeway")
-    best_alignment.plot(type="twoway", offset=10)
-
-    # ---------------------------------------- Step 3 - Generate array of plots ------------------------------------
-    f, axrray = plt.subplots(1, 2, figsize=(6, 2), dpi=100, sharey=True)
+    # --- Array of Plots (Grasp and Pick) ---
+    f, axrray = plt.subplots(1, 2, figsize=(10, 4), dpi=100, sharey=True)
     plt.subplots_adjust(wspace=0.05, hspace=0.175)
 
-    if variable == ' force_z':
-        legend_loc = 'upper right'
-    else:
-        legend_loc = 'lower right'
+    # Plot the grasp phase
+    pick_subplot(axrray, 'Grasp',
+                 best_real_grasp_time, best_real_grasp_value, best_proxy_grasp_time, best_proxy_grasp_value, variable)
+    # Plot pick phase
+    pick_subplot(axrray, 'Pick',
+                 best_real_pick_time, best_real_pick_value, best_proxy_pick_time, best_proxy_pick_value, variable)
 
-    # Grasp
-    ax = axrray[0]
-    ax.grid()
-    ax.plot(best_real_grasp_time, best_real_grasp_value, label='Real', color="#de8f05")
-    ax.plot(best_proxy_grasp_time, best_proxy_grasp_value, label='Proxy', color="#0173b2")
-    ax.legend(loc=legend_loc)
-    ax.set_ylabel(variable)
-    # Location of the Pick and Grasp Labels
-    y_max = max(np.max(best_real_pick_value), np.max(best_proxy_pick_value))
-    if y_max > 1:
-        ax.annotate('Grasp', xy=(0, 0.8 * y_max), size=15)
-    else:
-        ax.annotate('Grasp', xy=(0, -0.8), size=15)
+    plt.suptitle('Comparison of (' + case + ') Real pick No.' + str(best_pair[0]) + ' and Proxy pick No.'
+                 + best_pair[1] + '\nDynamic Time Warping distance: ' + str(round(best_alignment.distance, 0)), y=1)
 
-    # Pick
-    ax = axrray[1]
-    ax.grid()
-    ax.plot(best_real_pick_time, best_real_pick_value, label='Real', color="#de8f05")
-    ax.plot(best_proxy_pick_time, best_proxy_pick_value, label='Proxy', color="#0173b2")
-    ax.legend(loc=legend_loc)
+    # --- Display the best alignment pair ---
+    print("The closest pair was:")
+    print(best_pair[0], best_pair[1], round(best_alignment.distance,0))
+    # TODO
+    # best_alignment.plot(type="alignment")
+    best_alignment.plot(type="threeway")
+    # best_alignment.plot(type="twoway", offset=10)
 
-    # Location of the Pick and Grasp Labels
-    y_max = max(np.max(best_real_pick_value), np.max(best_proxy_pick_value))
-    if y_max > 1:
-        ax.annotate('Pick', xy=(0, 0.8 * y_max), size=15)
-    else:
-        ax.annotate('Pick', xy=(0, -0.8), size=15)
-
-    if case == "success":
-        plt.suptitle('Comparison of -- Successful -- Real and Proxy pick'
-                     + str(best_pair[0]) + 'vs' + best_pair[1] + ' ' + str(best_alignment.distance), y=1)
-    elif case == "failed":
-        plt.suptitle('Comparison of -- Failed -- Real and Proxy pick'
-                     + str(best_pair[0]) + 'vs' + best_pair[1] + ' ' + str(best_alignment.distance), y=1)
-
-    print(np.mean(distances))
+    # --- Save results in csv ---
+    info = [phase, variable]
+    header = ['real', 'proxy', 'dtw']
+    with open('dtws.csv', 'w') as file:
+        write = csv.writer(file)
+        write.writerow(info)
+        write.writerow(header)
+        write.writerows(dtw_comparison)
 
 
 def topic_from_variable(variable):
@@ -560,17 +582,21 @@ def main():
     parser.add_argument('--variable',
                         default='force_z',
                         type=str,
-                        help='variables: "force_x", "force_y", "force_z", "f1_acc_z"')
+                        help='Channel of interest: "force_x", "force_y", "force_z", "torque_z", "f1_acc_z", "f1_gyro_x"')
     parser.add_argument('--case',
                         default='success',
                         type=str,
-                        help='cases: "success", "failed"')
+                        help='Outcome / label of the apple picks: "success", "failed"')
+    parser.add_argument('--phase',
+                        default='pick',
+                        type=str,
+                        help='Phase to do the Dynamic Time Warping analysis: "grasp", "pick"')
     args = parser.parse_args()
 
     # --- Variable & Topic ---
     variable = ' ' + args.variable
     case = args.case
-    offset = 10
+    phase = args.phase
 
     # --- Data Location ---
     main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
@@ -584,7 +610,7 @@ def main():
     real_picks, proxy_picks = same_pose_picks(real_picks_location, proxy_picks_location, case[0])
 
     subfolder = '__for_proxy_real_comparison'
-    compare_picks(real_picks, proxy_picks, main, datasets, subfolder, case, variable)
+    compare_picks(real_picks, proxy_picks, main, datasets, subfolder, case, variable, phase)
 
     plt.show()
 
@@ -603,17 +629,13 @@ if __name__ == "__main__":
     # agg = agg_linear_trend(proxy_pic_values)
     # agg_located = round(agg_linear_trend(proxy_pic_values[start_idx:end_idx]), 2)
 
-
-    #
     # plt.figure(figsize=(3.5,4))
     # plt.plot(proxy_pic_time[start_idx-offset:end_idx+offset], proxy_pic_values[start_idx-offset:end_idx+offset], label = "Proxy Pick - ALT = " + str(agg_located))
     # plt.title('Pick Number %s ,  Complete agg is %.3f, and focused agg is %.3f' %(pick_number, agg, agg_located))
-    #
-    #
+
     # plt.plot(proxy_pic_time[start_idx-offset:end_idx+offset], proxy_pic_values[start_idx-offset:end_idx+offset], label = "Real Pick - ALT = " + str(agg_located))
     # plt.title('Pick Number %s ,  Complete agg is %.3f, and focused agg is %.3f' %(pick_number, agg, agg_located))
-    #
-    #
+
     # plt.grid()
     # plt.xlabel("Time [sec]")
     # plt.ylabel("Wrist's Force-z [N]")
@@ -623,7 +645,6 @@ if __name__ == "__main__":
     # Summary of averages of p-values for different chunk sizes (index=size)
     # Force-z during Pick
     # l = [0.23337979277326423, 0.2203270634907928, 0.18844639895918353, 0.2213198802825746, 0.14204429332042276, 0.1487433443456073, 0.14548226752715077, 0.21360420495781063, 0.08082902666667562, 0.08984952503803083, 0.12448619280869096, 0.10354744851119924, 0.12598206038595966, 0.08338008529129137, 0.11709524606507106, 0.08330071627500696, 0.026952384378935153, 0.04175300449127639, 0.049701897975944154, 0.0974991840161181, 0.15827851813430155, 0.20546669106283139, 0.2616560327521214, 0.11916594244013617, 0.3291276380919355, 0.08625908179047195, 0.22970243878568, 0.09112169585234355, 0.19919647634645105]
-
     # z-Accel during Grasp
     # l = [0.25901289893444784, 0.2986908716017838, 0.2935827041703743, 0.21092349146729195, 0.2306555221316252, 0.3657076970023651, 0.2132266933123365, 0.25241170080090125, 0.2198693748564147, 0.08689849608604742, 0.3226368691966782, 0.2876482450151785, 0.37029163602415804, 0.6164759317569015, 0.5334846713154942, 0.44816364045643065, 0.44133679900857753, 0.39805566497231737, 0.3587854676400678, 0.19314727740175824, 0.2615276672885519, 0.43612691731668674, 0.1662941779321381, 0.2398107599349763, 0.4174321047067055, 0.27136107580194435, 0.3525662495794601, 0.4030642132974157, 0.4750614196628438]
 
