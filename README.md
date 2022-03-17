@@ -17,17 +17,17 @@ Hence, this package is useful for the user to:
 For brief usage instructions, type:
 
 ```html
-$ python compare_pics.py --help
-$ python machine_learning.py --help
-$ python metadata_stats.py --help 
+$ python appickcompare.py --help
+$ python appicklearning.py --help
+$ python appickstats.py --help 
 ```
 
 
 ## Examples
-### module: compare_picks.py
+### module: appickcompare.py
 The following example analyzes *variable* 'Force_x', among the 'failed' picks *case*, and does the Dynamic Time Warping (DTW) analysis during the 'pick' *phase*.
 ```
-$ python compare_picks.py --variable force_z --case failed --phase pick
+$ python appickcompare.py --variable force_z --case failed --phase pick
 ```
 It outputs a time-series plot with the closest real and proxy picks.
 It also outputs a .csv file with a list of the real and proxy picks that are comparable. Comparable picks are the ones where the pose of the robot with respect to the apple is the same.
@@ -36,10 +36,10 @@ These files are stored in the sub-folder **results**.
 ![Image](https://github.com/velasale/PickApp/blob/main/results/%20force_z__during__pick.png)
 
 
-### module: machine_learning.py
+### module: appicklearning.py
 The following example runs a Random Forest Classifier (RFC), with 10 *experiments* to account for the classifier's stochasticity, with a *depth* of 5 branches, and utilizes 5 *features*.
 ```
-$ python machine_learning.py --experiments 10 --depth 5 --feature 5 --classifier rfc 
+$ python appicklearning.py --experiments 10 --depth 5 --feature 5 --classifier rfc 
 ```
 It outputs a boxplot with the classifier's accuracies during the experiments.
 The boxplot gets stored in a .pdf file, along with a .txt file with the confusion matrix of the best accuracy.
@@ -47,10 +47,10 @@ These files are stored in the sub-folder **results**.
 
 ![Image](https://github.com/velasale/PickApp/blob/main/results/ML_RFC%20accuracy.png)
 
-### module: metadata_stats.py
+### module: appickstats.py
 In the following example, the statistic analysis is run for the dataset *3_proxy_winter22_x1*.
 ```html
-$ python metadata_stats.py --dataset 3_proxy_winter22_x1
+$ python appickstats.py --dataset 3_proxy_winter22_x1
 ```
 It outputs .pdfs with box-plots of the angular and cartesian noise.
 It also outputs a .txt file with Mean, SD and percentiles of each noise.
