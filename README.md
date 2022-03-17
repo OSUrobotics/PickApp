@@ -32,7 +32,7 @@ $ python compare_picks.py --variable force_z --case failed --phase pick
 It outputs a time-series plot with the closest real and proxy picks.
 It also outputs a .csv file with a list of the real and proxy picks that are comparable. Comparable picks are the ones where the pose of the robot with respect to the apple is the same.
 These files are stored in the sub-folder 'results'.
-![Image](https://www.google.com/search?q=jetbrains%3A%2F%2Fpycharm%2Fnavigate%2Freference%3Fproject%3DPickApp%26path%3Dresults%2F+force_z__during__pick.png&oq=jetbrains%3A%2F%2Fpycharm%2Fnavigate%2Freference%3Fproject%3DPickApp%26path%3Dresults%2F+force_z__during__pick.png)
+![](C:\Users\15416\Pictures\Figure_1.png)
 
 ### module: machine_learning.py
 The following example runs a Random Forest Classifier (RFC), with 10 experiments to account for the classifier's stochasticity, with a depth of 5 branches, and utilizes 5 features.
