@@ -145,7 +145,7 @@ def rfc(experiments, depth, n_features):
     plt.title('%s + %i experiments)' % (experiment, experiments))
     plt.ylim([0, 1])
     # Save boxplot
-    name = 'ML_RFC accuracy.pdf'
+    name = 'ML_RFC accuracy.png'
     target_dir = os.path.dirname(os.getcwd()) + '/results/'
     fig.savefig(target_dir + name)
 
@@ -260,7 +260,7 @@ def mlpc(experiments, n_features):
     plt.ylim([0, 1])
 
     # Save boxplot
-    name = 'ML_MLPC accuracy.pdf'
+    name = 'ML_MLPC accuracy.png'
     target_dir = os.path.dirname(os.getcwd()) + '/results/'
     fig.savefig(target_dir + name)
 
