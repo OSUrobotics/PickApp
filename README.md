@@ -37,7 +37,7 @@ These files are stored in the sub-folder **results**.
 
 
 ### module: machine_learning.py
-The following example runs a Random Forest Classifier (RFC), with 10 experiments to account for the classifier's stochasticity, with a depth of 5 branches, and utilizes 5 features.
+The following example runs a Random Forest Classifier (RFC), with 10 *experiments* to account for the classifier's stochasticity, with a *depth* of 5 branches, and utilizes 5 *features*.
 ```
 $ python machine_learning.py --experiments 10 --depth 5 --feature 5 --classifier rfc 
 ```
@@ -48,7 +48,7 @@ These files are stored in the sub-folder **results**.
 ![Image](https://github.com/velasale/PickApp/blob/main/results/ML_RFC%20accuracy.png)
 
 ### module: metadata_stats.py
-In the following example, the statistic analysis is run for the dataset '3_proxy_winter22_x1'.
+In the following example, the statistic analysis is run for the dataset ***3_proxy_winter22_x1***.
 ```html
 $ python metadata_stats.py --dataset 3_proxy_winter22_x1
 ```
