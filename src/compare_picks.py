@@ -531,7 +531,7 @@ def compare_picks(reals, proxys, main, datasets, subfolder, case, variable, phas
                  + best_pair[1] + '\nDynamic Time Warping distance: ' + str(round(best_alignment.distance, 0)), y=1)
 
     # Save the plot
-    name = variable + '__during__' + phase + '.pdf'
+    name = variable + '__during__' + phase + '.png'
     target_dir = os.path.dirname(os.getcwd()) + '/results/'
     f.savefig(target_dir + name)
 
