@@ -88,3 +88,6 @@ https://education.github.com/git-cheat-sheet-education.pdf
 
 MarkDown cheat-sheet  
 https://www.markdownguide.org/cheat-sheet/
+
+Packaging Python Projects
+https://packaging.python.org/en/latest/tutorials/packaging-projects/
