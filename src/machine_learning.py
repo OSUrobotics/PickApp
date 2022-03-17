@@ -268,6 +268,15 @@ def mlpc(experiments, n_features):
 
 
 def main():
+    """
+    This module runs machine learning classifiers.
+    The user should give as arguments:
+        a) machine learning classifier: Random Forest Classifier (RFC) or Multi Layer Perceptron Classifier (MLPC)
+        b) number of experiments to run with each classifier
+        c) number of features to consider from the data
+        d) depth as a parameter for RFC
+    :return:
+    """
 
     # --- Parse Arguments from Command Line ---
     parser = argparse.ArgumentParser(description='Simple command-line program')
