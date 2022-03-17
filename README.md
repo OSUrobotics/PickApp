@@ -15,12 +15,22 @@ ii) Obtain statistics about the experiments, such as the distribution of cartesi
 iii) Do basic machine learning to check if - with the given data - it is possible to train a classifier and predict the outcome of the pick (e.g. successful, failed)
 
 
-## Installation
-
-
 ## Examples
+### module: compare_picks.py
+
+The following example runs a Random Forest Classifier (RFC), with 10 experiments to account for the classifier's stochasticity, with a depth of 5 branches, and utilizes 5 features
+```
+python machine_learning.py --experiments 10 --depth 5 --feature 5 --classifier rfc 
+```
 
 
+module: machine_learning.py
+
+
+module: metadata_stats.py
+
+
+## Installation
 
 
 
