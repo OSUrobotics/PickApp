@@ -29,8 +29,8 @@ python machine_learning.py --experiments 10 --depth 5 --feature 5 --classifier r
 ```
 
 ### module: metadata_stats.py
-
-```buildoutcfg
+In the following example, the statistic analysis is run for the dataset '3_proxy_winter22_x1'
+```
 python metadata_stats.py --dataset 3_proxy_winter22_x1
 ```
 
