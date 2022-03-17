@@ -19,9 +19,11 @@ Hence, this package is useful for the user to:
 ### module: compare_picks.py
 The following example analyzes channel 'Force_x', among the 'failed' picks, and does the Dynamic Time Warping (DTW) analysis during the 'pick' phase.
 ```
-python compare_picks.py --variable force_x --case failed --phase pick
+python compare_picks.py --variable force_z --case failed --phase pick
 ```
-
+It outputs a time-series plot with the closest real and proxy picks.
+It also outputs a .csv file with a list of the real and proxy picks that are comparable. Comparable picks are the ones where the pose of the robot with respect to the apple is the same.
+These files are stored in the sub-folder 'results'.
 
 ### module: machine_learning.py
 The following example runs a Random Forest Classifier (RFC), with 10 experiments to account for the classifier's stochasticity, with a depth of 5 branches, and utilizes 5 features.
@@ -29,17 +31,17 @@ The following example runs a Random Forest Classifier (RFC), with 10 experiments
 python machine_learning.py --experiments 10 --depth 5 --feature 5 --classifier rfc 
 ```
 It outputs a boxplot with the classifier's accuracies during the experiments.
-The boxplot gets stored in a .pdf file, along with a .txt file with the confussion matrix of the best accuracy.
-
+The boxplot gets stored in a .pdf file, along with a .txt file with the confusion matrix of the best accuracy.
+These files are stored in the sub-folder 'results'.
 
 ### module: metadata_stats.py
 In the following example, the statistic analysis is run for the dataset '3_proxy_winter22_x1'.
 ```
 python metadata_stats.py --dataset 3_proxy_winter22_x1
 ```
-It outputs .pdfs with boxplots of the angular and cartesian noise.
+It outputs .pdfs with box-plots of the angular and cartesian noise.
 It also outputs a .txt file with Mean, SD and percentiles of each noise.
-These files are stored in 'results/'
+These files are stored in the sub-folder 'results'.
 
 
 
