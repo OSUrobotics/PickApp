@@ -25,7 +25,7 @@ import argparse
 
 def rfc(experiments, depth, n_features):
     """
-    Runs a Random Forest Classifier, to see if it can learn to differentiate successful picks form failed ones.
+    Runs a Random Forest Classifier, to see if it can learn to differentiate successful picks from failed ones.
     It saves the report and plots into the results subfolder
     :param experiments: Number of Experiments to run, to overcome stochasticity of 'Random' Forest
     :param depth: Number of sub-branches that the classifier builds
@@ -154,7 +154,7 @@ def rfc(experiments, depth, n_features):
 
 def mlpc(experiments, n_features):
     """
-    Runs a Multi-Layer_Perceptron Classifier, to see if it can learn to differentiate successful picks form failed ones.
+    Runs a Multi-Layer_Perceptron Classifier, to see if it can learn to differentiate successful picks from failed ones.
     It saves the report and plots into the results subfolder
     :param experiments:
     :param n_features:

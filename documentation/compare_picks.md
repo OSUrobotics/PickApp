@@ -45,7 +45,10 @@ Functions
 
     
 `main()`
-:   
+:   This modules compares time series from 'real apple' picks and from 'apple proxy'.
+    It checks for the closest pair of picks by looking at each of the real apple picks, and sweeping all the
+    proxy picks attempts with same pose, and the same label (e.g. successs, failed)
+    :return:
 
     
 `number_from_filename(filename)`

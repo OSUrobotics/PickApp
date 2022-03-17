@@ -580,6 +580,12 @@ def topic_from_variable(variable):
 
 
 def main():
+    """
+    This module compares time series from 'real apple' picks and from 'apple proxy'.
+    It checks for the closest pair of picks by looking at each of the real apple picks, and sweeping all the
+    proxy picks attempts with same pose, and the same label (e.g. successs, failed)
+    :return:
+    """
     # --- Parse Arguments from Command Line ---
     parser = argparse.ArgumentParser(description='Simple command-line program')
     parser.add_argument('--variable',

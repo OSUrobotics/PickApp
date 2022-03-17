@@ -7,7 +7,10 @@ Functions
 
     
 `main()`
-:   
+:   This modules brings basic statistics of the metadata files from all the experiments.
+    It outputs the % for each label and the distribution of the cartesian and angular noise that was applied
+    during the picks performed at the apple proxy.
+    :return:
 
 Classes
 -------
