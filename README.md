@@ -17,22 +17,23 @@ iii) Do basic machine learning to check if - with the given data - it is possibl
 
 ## Examples
 ### module: compare_picks.py
-The following example analyzes channel 'Force_x', among the 'failed' picks, and does the Dynamic Time Warping (DTW) analysis during the 'pick' phase
+The following example analyzes channel 'Force_x', among the 'failed' picks, and does the Dynamic Time Warping (DTW) analysis during the 'pick' phase.
 ```
 python compare_picks.py --variable force_x --case failed --phase pick
 ```
 
-
-
 ### module: machine_learning.py
-
-The following example runs a Random Forest Classifier (RFC), with 10 experiments to account for the classifier's stochasticity, with a depth of 5 branches, and utilizes 5 features
+The following example runs a Random Forest Classifier (RFC), with 10 experiments to account for the classifier's stochasticity, with a depth of 5 branches, and utilizes 5 features.
 ```
 python machine_learning.py --experiments 10 --depth 5 --feature 5 --classifier rfc 
 ```
 
-
 ### module: metadata_stats.py
+
+```buildoutcfg
+python metadata_stats.py --dataset 3_proxy_winter22_x1
+```
+
 
 
 ## Installation
