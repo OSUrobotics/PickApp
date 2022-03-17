@@ -1,5 +1,5 @@
 """
-This file opens all the csvs that have the labels from the experiments, and returns some statistics
+This file opens all the csvs that have the labels from the experiments, and returns some basic statistics
 """
 
 import csv
@@ -11,6 +11,8 @@ import numpy as np
 import sys
 import argparse
 from tqdm import tqdm       # Progress Bar Package
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 class MetadataStats:
@@ -48,40 +50,6 @@ class MetadataStats:
                 else:
                     failures = failures + 1
 
-        # Get the suffix of the filenames, because it varies from one dataset to another
-        # for filename in os.listdir(location):
-        #     name = str(filename)
-        #     break
-        # end = name.index('pick')
-        # name = name[:end + 4]
-        # print(name)
-
-        # real_apple_picks = 77   # Number of Real Apple Picks performed before, on which the proxy-pick poses are based
-        # attempts_at_proxy = 13  # Attempts performed at proxy adding noise to the pose from the real-apple pick
-        #
-        # for i in range(real_apple_picks):
-        #
-        #     for j in range(attempts_at_proxy):
-        #
-        #         file = name + str(i) + '-' + str(j) + '_metadata.csv'
-        #         rows = []
-        #
-        #         if exists(location + file):
-        #             # print(file)
-        #             count += 1
-        #
-        #             with open(location + file) as csv_file:     # 'with' closes file automatically afterwards
-        #                 # Create  a csv object
-        #                 csv_reader = csv.reader(csv_file, delimiter=',')
-        #                 # Extract each data row one by one
-        #                 for row in csv_reader:
-        #                     rows.append(row)
-        #
-        #                 if rows[1][10] == 's':
-        #                     success = success + 1
-        #                 else:
-        #                     failures = failures + 1
-
         return success, failures, count
 
     def get_info(self, column):
@@ -92,7 +60,6 @@ class MetadataStats:
         metadata = []
         for file in os.listdir(location):
 
-            # print(file)
             rows = []
 
             with open(location + file) as csv_file:             # 'with' closes file automatically afterwards
@@ -111,7 +78,8 @@ class MetadataStats:
 
     def noise_stats(self, data):
         """
-
+        Outputs mean, st dev and percentiles of the noise of all the experiments form the data sets.
+        It saves the report and boxplots in the results folder.
         :param data:
         :return:
         """
@@ -119,9 +87,9 @@ class MetadataStats:
         x_noises = []
         y_noises = []
         z_noises = []
-        r_noises = []
-        p_noises = []
-        yw_noises = []
+        roll_noises = []
+        pitch_noises = []
+        yaw_noises = []
 
         for noise_list in data:
             b = ast.literal_eval(noise_list)
@@ -133,29 +101,50 @@ class MetadataStats:
             z_noises.append(c[2])
 
             # Convert angular noise radians to degrees
-            r_noises.append(c[3] * 180 / math.pi)
-            p_noises.append(c[4] * 180 / math.pi)
-            yw_noises.append(c[5] * 180 / math.pi)
+            roll_noises.append(c[3] * 180 / math.pi)
+            pitch_noises.append(c[4] * 180 / math.pi)
+            yaw_noises.append(c[5] * 180 / math.pi)
+
+        # --- Boxplots
+        fig1, ax1 = plt.subplots()
+        ax1.set_title('Cartesian Noise')
+        ax1.boxplot([x_noises, y_noises, z_noises])
+        plt.xticks([1, 2, 3], ['x_noise', 'y_noise', 'z_noise'])
+        name = self.dataset + '__Cartesian_Noise.pdf'
+        target_dir = os.path.dirname(os.getcwd()) + '/results/'
+        plt.savefig(target_dir + name)
+
+        fig2, ax2 = plt.subplots()
+        ax2.set_title('Angular Noise')
+        ax2.boxplot([roll_noises, pitch_noises, yaw_noises])
+        plt.xticks([1, 2, 3], ['roll_noise', 'pitch_noise', 'yaw_noise'])
+        name = self.dataset + '__Angular_Noise.pdf'
+        target_dir = os.path.dirname(os.getcwd()) + '/results/'
+        plt.savefig(target_dir + name)
+
+        plt.show()
+
+        # --- Print Report
+        data = [x_noises, y_noises, z_noises, roll_noises, pitch_noises, yaw_noises]
+        labels = ['x_noises', 'y_noises', 'z_noises', 'roll_noises', 'pitch_noises', 'yaw_noises']
 
         print(" --- Percentiles ---- ")
-        print("x noise:")
-        print("Mean: ", round(np.mean(x_noises),3), "SD: ", round(np.std(x_noises),3), "Percentiles: ",
-              np.percentile(x_noises, [25, 50, 75]))
-        print("y noise:")
-        print("Mean: ", round(np.mean(y_noises),3), "SD: ", round(np.std(y_noises),3), "Percentiles: ",
-              np.percentile(y_noises, [25, 50, 75]))
-        print("z noise:")
-        print("Mean: ", round(np.mean(z_noises),3), "SD: ", round(np.std(z_noises),3), "Percentiles: ",
-              np.percentile(z_noises, [25, 50, 75]))
-        print("Roll noise:")
-        print("Mean: ", round(np.mean(r_noises),3), "SD: ", round(np.std(r_noises),3), "Percentiles: ",
-              np.percentile(r_noises, [25, 50, 75]))
-        print("Pitch noise:")
-        print("Mean: ", round(np.mean(p_noises),3), "SD: ", round(np.std(p_noises),3), "Percentiles: ",
-              np.percentile(p_noises, [25, 50, 75]))
-        print("Yaw noise:")
-        print("Mean: ", round(np.mean(yw_noises),3), "SD: ", round(np.std(yw_noises),3), "Percentiles: ",
-              np.percentile(yw_noises, [25, 50, 75]))
+        for i, j in zip(data, labels):
+            print(j)
+            print("Mean: ", round(np.mean(i),3), "SD: ", round(np.std(i),3), "Percentiles: ",
+              np.percentile(i, [25, 50, 75]))
+
+        # --- Save Report
+        name = self.dataset + '__Noise_Report.txt'
+        target_dir = os.path.dirname(os.getcwd()) + '/results/'
+        with open(target_dir + name, 'w') as file:
+            for i, j in zip(data, labels):
+                file.write(j + "\n")
+                result = "Mean: " + str(round(np.mean(i), 3)) + "SD: " \
+                         + str(round(np.std(i), 3)) + "Percentiles: " \
+                         + str(np.percentile(i, [25, 50, 75])) + "\n"
+                file.write(result)
+
 
 def main():
 
@@ -178,7 +167,6 @@ def main():
     # Calculate functions
     b = a.get_info(16)
     a.noise_stats(b)
-
 
 if __name__ == "__main__":
     main()

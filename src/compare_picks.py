@@ -530,6 +530,11 @@ def compare_picks(reals, proxys, main, datasets, subfolder, case, variable, phas
     plt.suptitle('Comparison of (' + case + ') Real pick No.' + str(best_pair[0]) + ' and Proxy pick No.'
                  + best_pair[1] + '\nDynamic Time Warping distance: ' + str(round(best_alignment.distance, 0)), y=1)
 
+    # Save the plot
+    name = variable + '__during__' + phase + '.pdf'
+    target_dir = os.path.dirname(os.getcwd()) + '/results/'
+    f.savefig(target_dir + name)
+
     # --- Display the best alignment pair ---
     print("The closest pair was:")
     print(best_pair[0], best_pair[1], round(best_alignment.distance,0))
@@ -539,13 +544,11 @@ def compare_picks(reals, proxys, main, datasets, subfolder, case, variable, phas
     # best_alignment.plot(type="twoway", offset=10)
 
     # --- Save results in csv ---
-    info = [phase, variable]
     header = ['real', 'proxy', 'dtw']
     name = variable + '__during__' + phase + '.csv'
     target_dir = os.path.dirname(os.getcwd()) + '/results/'
     with open(target_dir + name, 'w') as file:
         write = csv.writer(file)
-        # write.writerow(info)
         write.writerow(header)
         write.writerows(dtw_comparison)
 
