@@ -25,7 +25,7 @@ import argparse
 
 def rfc(experiments, depth, n_features):
     """
-    Runs a Random Forest Classifier, to see if it can learn to differentiate successful picks form failed ones.
+    Runs a Random Forest Classifier, to see if it can learn to differentiate successful picks from failed ones.
     It saves the report and plots into the results subfolder
     :param experiments: Number of Experiments to run, to overcome stochasticity of 'Random' Forest
     :param depth: Number of sub-branches that the classifier builds
@@ -145,7 +145,7 @@ def rfc(experiments, depth, n_features):
     plt.title('%s + %i experiments)' % (experiment, experiments))
     plt.ylim([0, 1])
     # Save boxplot
-    name = 'ML_RFC accuracy.pdf'
+    name = 'ML_RFC accuracy.png'
     target_dir = os.path.dirname(os.getcwd()) + '/results/'
     fig.savefig(target_dir + name)
 
@@ -154,7 +154,7 @@ def rfc(experiments, depth, n_features):
 
 def mlpc(experiments, n_features):
     """
-    Runs a Multi-Layer_Perceptron Classifier, to see if it can learn to differentiate successful picks form failed ones.
+    Runs a Multi-Layer_Perceptron Classifier, to see if it can learn to differentiate successful picks from failed ones.
     It saves the report and plots into the results subfolder
     :param experiments:
     :param n_features:
@@ -234,7 +234,6 @@ def mlpc(experiments, n_features):
             best_true_negatives = true_negatives
             best_false_negatives = false_negatives
 
-
         # Append results for statistics
         results.append(result)
 
@@ -261,7 +260,7 @@ def mlpc(experiments, n_features):
     plt.ylim([0, 1])
 
     # Save boxplot
-    name = 'ML_MLPC accuracy.pdf'
+    name = 'ML_MLPC accuracy.png'
     target_dir = os.path.dirname(os.getcwd()) + '/results/'
     fig.savefig(target_dir + name)
 
@@ -269,9 +268,23 @@ def mlpc(experiments, n_features):
 
 
 def main():
+    """
+    This module runs machine learning classifiers.
+    The user should give as arguments:
+        a) machine learning classifier: Random Forest Classifier (RFC) or Multi Layer Perceptron Classifier (MLPC)
+        b) number of experiments to run with each classifier
+        c) number of features to consider from the data
+        d) depth as a parameter for RFC
+    :return:
+    """
 
     # --- Parse Arguments from Command Line ---
-    parser = argparse.ArgumentParser(description='Simple command-line program')
+    parser = argparse.ArgumentParser(description='This module runs machine learning classifiers. The user should give'
+                                                 ' as arguments: '
+                                                 ' a) machine learning classifier: Random Forest Classifier (RFC) or Multi Layer Perceptron Classifier (MLPC) '
+                                                 ' b) number of experiments to run with each classifier '
+                                                 ' c) number of features to consider from the data '
+                                                 ' d) depth as a parameter for RFC')
     parser.add_argument('--experiments',
                         default=10,
                         type=int,

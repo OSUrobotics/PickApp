@@ -1,0 +1,8 @@
+
+Classifier: Random Forest
+Best Accuracy: 0.75
+Confusion Matrix
+                  Reference      
+Prediction    Success     Failure
+   Success       62          20
+   Failure       13          38

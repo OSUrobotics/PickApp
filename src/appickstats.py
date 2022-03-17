@@ -147,9 +147,18 @@ class MetadataStats:
 
 
 def main():
+    """
+    This modules brings basic statistics of the metadata files from all the experiments.
+    It outputs the % for each label and the distribution of the cartesian and angular noise that was applied
+    during the picks performed at the apple proxy.
+    :return:
+    """
 
     # --- Parse Arguments from Command Line ---
-    parser = argparse.ArgumentParser(description='Simple command-line program')
+    parser = argparse.ArgumentParser(description=' This modules brings basic statistics of the metadata files from all '
+                                                 ' the experiments. It outputs the % for each label and the distribution'
+                                                 ' of the cartesian and angular noise that was applied during the picks'
+                                                 ' performed at the apple proxy.')
     parser.add_argument('--dataset',
                         default='3_proxy_winter22_x1',
                         type=str,
@@ -167,6 +176,7 @@ def main():
     # Calculate functions
     b = a.get_info(16)
     a.noise_stats(b)
+
 
 if __name__ == "__main__":
     main()

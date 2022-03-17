@@ -30,8 +30,6 @@ from matplotlib.backends.backend_pdf import PdfPages
 plt.close('all')
 
 
-
-
 class PdfPlots:
 
     def __init__(self):

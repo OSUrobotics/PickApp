@@ -531,7 +531,7 @@ def compare_picks(reals, proxys, main, datasets, subfolder, case, variable, phas
                  + best_pair[1] + '\nDynamic Time Warping distance: ' + str(round(best_alignment.distance, 0)), y=1)
 
     # Save the plot
-    name = variable + '__during__' + phase + '.pdf'
+    name = variable + '__during__' + phase + '.png'
     target_dir = os.path.dirname(os.getcwd()) + '/results/'
     f.savefig(target_dir + name)
 
@@ -580,8 +580,17 @@ def topic_from_variable(variable):
 
 
 def main():
+    """
+    This module compares time series from 'real apple' picks and from 'apple proxy'.
+    It checks for the closest pair of picks by looking at each of the real apple picks, and sweeping all the
+    proxy picks attempts with same pose, and the same label (e.g. successs, failed)
+    :return:
+    """
     # --- Parse Arguments from Command Line ---
-    parser = argparse.ArgumentParser(description='Simple command-line program')
+    parser = argparse.ArgumentParser(description='This module compares time series from "real apple" picks and from \n'
+                                                 '"apple proxy". It checks for the closest pair of picks by looking \n'
+                                                 'at each of the real apple picks, and sweeping all the proxy picks \n'
+                                                 'attempts with same pose, and the same label (e.g. successs, failed)')
     parser.add_argument('--variable',
                         default='force_z',
                         type=str,
