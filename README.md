@@ -45,6 +45,8 @@ It outputs a boxplot with the classifier's accuracies during the experiments.
 The boxplot gets stored in a .pdf file, along with a .txt file with the confusion matrix of the best accuracy.
 These files are stored in the sub-folder 'results'.
 
+![Image](https://github.com/velasale/PickApp/blob/main/results/ML_RFC%20accuracy.png)
+
 ### module: metadata_stats.py
 In the following example, the statistic analysis is run for the dataset '3_proxy_winter22_x1'.
 ```html
