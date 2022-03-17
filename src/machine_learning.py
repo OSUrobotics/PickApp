@@ -105,16 +105,10 @@ def rfc(experiments, depth, n_features):
         # Only print the best Accuracy so far
         if result > max_acc:
             max_acc = result
-            print("\nSo far the best has been:")
-            print("\nClassifier: Random Forest")
-            # print("Parameters: %i tsfresh features" % n_features)
-            print("Accuracy: %.2f" % result)
-            print("Confusion Matrix")
-            print("                  Reference      ")
-            print("Prediction    Success     Failure")
-            print("   Success       %i          %i" % (true_positives, false_positives))
-            print("   Failure       %i          %i" % (false_negatives, true_negatives))
-            print('\n')
+            best_true_positives = true_positives
+            best_false_positives = false_positives
+            best_true_negatives = true_negatives
+            best_false_negatives = false_negatives
 
             # Confusion Matrix from Scikit-Learn
             # Be aware that in this case the matrix columns are predictions, and rows are actual values
@@ -127,6 +121,20 @@ def rfc(experiments, depth, n_features):
 
         # Append results for statistics
         results.append(result)
+
+    # --- Confussion Matrix Report
+    target_dir = os.path.dirname(os.getcwd()) + '/results/'
+    name = 'ML_RFC__confussion_matrix.txt'
+
+    with open(target_dir + name, 'w') as f:
+        print("\nClassifier: Random Forest", file=f)
+        print("Best Accuracy: %.2f" % max_acc, file=f)
+        print("Confusion Matrix", file=f)
+        print("                  Reference      ", file=f)
+        print("Prediction    Success     Failure", file=f)
+        print("   Success       %i          %i" % (best_true_positives, best_false_positives), file=f)
+        print("   Failure       %i          %i" % (best_false_negatives, best_true_negatives), file=f)
+        print('\n')
 
     # --- Boxplot of RFC results
     fig, ax = plt.subplots()
@@ -220,23 +228,29 @@ def mlpc(experiments, n_features):
         # Only print the best Accuracy so far
         if result > max_acc:
             max_acc = result
-            print("\nSo far the best has been:")
-            print("\nClassifier: Multi Layer Perceptron")
-            print("Parameters: %i Autoencoder features" % n_features)
-            print("Accuracy: %.2f" % result)
-            print("Confusion Matrix")
-            print("                  Reference      ")
-            print("Prediction    Success     Failure")
-            print("   Success       %i          %i" % (true_positives, false_positives))
-            print("   Failure       %i          %i" % (false_negatives, true_negatives))
-            print('\n')
+
+            best_true_positives = true_positives
+            best_false_positives = false_positives
+            best_true_negatives = true_negatives
+            best_false_negatives = false_negatives
+
 
         # Append results for statistics
         results.append(result)
 
-    # print(results)
-    mean = np.mean(results)
-    st_dev = np.std(results)
+    # --- Confussion Matrix Report
+    target_dir = os.path.dirname(os.getcwd()) + '/results/'
+    name = 'ML_MLPC__confussion_matrix.txt'
+
+    with open(target_dir + name, 'w') as f:
+        print("\nClassifier: Multi Layer Perceptron", file=f)
+        print("Best Accuracy: %.2f" % max_acc, file=f)
+        print("Confusion Matrix", file=f)
+        print("                  Reference      ", file=f)
+        print("Prediction    Success     Failure", file=f)
+        print("   Success       %i          %i" % (best_true_positives, best_false_positives), file=f)
+        print("   Failure       %i          %i" % (best_false_negatives, best_true_negatives), file=f)
+        print('\n')
 
     fig, ax = plt.subplots()
     ax.boxplot(results)
@@ -252,14 +266,6 @@ def mlpc(experiments, n_features):
     fig.savefig(target_dir + name)
 
     plt.show()
-
-
-
-
-# def sets():
-#
-#
-# def data():
 
 
 def main():
@@ -290,7 +296,7 @@ def main():
 
     if args.classifier == 'rfc':
         # Random Forest Classifier
-        rfc(experiments, depth, features)     # experiments, depth, features
+        rfc(experiments, depth, features)
     elif args.classifier == 'mlpc':
         # Multi Layer Perceptron Classifier
         mlpc(experiments, features)
