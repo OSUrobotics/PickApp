@@ -234,7 +234,6 @@ def mlpc(experiments, n_features):
             best_true_negatives = true_negatives
             best_false_negatives = false_negatives
 
-
         # Append results for statistics
         results.append(result)
 

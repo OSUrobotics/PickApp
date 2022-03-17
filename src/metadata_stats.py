@@ -168,6 +168,7 @@ def main():
     b = a.get_info(16)
     a.noise_stats(b)
 
+
 if __name__ == "__main__":
     main()
 
