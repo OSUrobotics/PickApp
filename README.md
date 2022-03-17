@@ -25,7 +25,7 @@ $ python metadata_stats.py --help
 
 ## Examples
 ### module: compare_picks.py
-The following example analyzes channel 'Force_x', among the 'failed' picks, and does the Dynamic Time Warping (DTW) analysis during the 'pick' phase.
+The following example analyzes *variable* 'Force_x', among the 'failed' picks *case*, and does the Dynamic Time Warping (DTW) analysis during the 'pick' *phase*.
 ```
 $ python compare_picks.py --variable force_z --case failed --phase pick
 ```
