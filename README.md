@@ -73,9 +73,16 @@ Mean: 0.0SD: 0.0Percentiles: [0. 0. 0.]
 
 
 ## Installation
-
+### Choice 1:
+Install form PyPI
 ```
 pip install pickApp
+```
+
+### Choice 2: 
+Download the repo, and run the following code
+```html
+python setup.py install
 ```
 
 
