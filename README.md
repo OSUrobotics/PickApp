@@ -74,6 +74,9 @@ Mean: 0.0SD: 0.0Percentiles: [0. 0. 0.]
 
 ## Installation
 
+```
+pip install pickApp
+```
 
 
 ## Tips
