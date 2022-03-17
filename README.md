@@ -48,7 +48,7 @@ These files are stored in the sub-folder **results**.
 ![Image](https://github.com/velasale/PickApp/blob/main/results/ML_RFC%20accuracy.png)
 
 ### module: metadata_stats.py
-In the following example, the statistic analysis is run for the dataset ***3_proxy_winter22_x1***.
+In the following example, the statistic analysis is run for the dataset *3_proxy_winter22_x1*.
 ```html
 $ python metadata_stats.py --dataset 3_proxy_winter22_x1
 ```
