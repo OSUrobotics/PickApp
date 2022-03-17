@@ -587,7 +587,10 @@ def main():
     :return:
     """
     # --- Parse Arguments from Command Line ---
-    parser = argparse.ArgumentParser(description='Simple command-line program')
+    parser = argparse.ArgumentParser(description='This module compares time series from "real apple" picks and from \n'
+                                                 '"apple proxy". It checks for the closest pair of picks by looking \n'
+                                                 'at each of the real apple picks, and sweeping all the proxy picks \n'
+                                                 'attempts with same pose, and the same label (e.g. successs, failed)')
     parser.add_argument('--variable',
                         default='force_z',
                         type=str,
