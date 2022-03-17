@@ -8,12 +8,17 @@ import math
 import numpy as np
 from numpy import genfromtxt
 import pandas as pd
+
 # --- GUI related packages
 import tqdm
 
 
 # location = 'C:/Users/15416/PycharmProjects/PickApp/data_postprocess1 (only grasp)/'
-location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/6_real_fall21_x5/PICK/pp1_split/'
+main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
+dataset = '6_real_fall21_x5/'
+subfolder = 'PICK/pp1_split/'
+
+location = main + dataset + subfolder
 
 lengths = []
 
@@ -62,7 +67,7 @@ for filename in (os.listdir(location)):
             byte.append(values)
 
         # Create the new data file
-        target_location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/6_real_fall21_x5/PICK/pp2_downsampled/'
+        target_location = main + dataset + 'PICK/pp2_downsampled/'
         name = target_location + filename[:-4] + '_' + str(i) + '.csv'
 
         with open(name, 'w', newline='') as f:

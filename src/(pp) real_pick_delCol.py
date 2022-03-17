@@ -25,12 +25,12 @@ maxdepth = 10
 
 main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
 dataset = '5_real_fall21_x1/'
+#dataset = '1_proxy_rob537_x1/'
 subfolder = 'pp1_split_x45cols/'
 
-stage = 'PICK/'
+stage = 'GRASP/'
 
 location = main + dataset + stage + subfolder
-# location = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/4_proxy_winter22_x5/PICK/pp1_split_x45cols/'
 
 # First delete the columns
 for filename in sorted(os.listdir(location)):
@@ -55,7 +55,7 @@ for filename in sorted(os.listdir(location)):
                 writer = csv.writer(result)
                 for r in reader:
                     # writer.writerow((r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]))
-                    writer.writerow((r[0], r[1], r[2], r[3], r[4], r[5], r[6]))
+                    writer.writerow((r[0], r[1], r[2], r[3], r[5], r[6], r[7]))
 
     if var == "u":
         # These are IMU files, from which we'll delete columns 4 and 8
@@ -72,7 +72,7 @@ for filename in sorted(os.listdir(location)):
                 writer = csv.writer(result)
                 for r in reader:
                     # writer.writerow((r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7]))
-                    writer.writerow((r[1], r[2], r[3], r[4], r[5], r[6]))
+                    writer.writerow((r[0], r[1], r[2], r[3], r[5], r[6], r[7]))
 
     if var == "s":
         # These are JOIN STATES files, from which we'll delete columns 4 and 8
