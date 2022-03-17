@@ -4,7 +4,7 @@ Package to perform apple picking experiments with a UR5 robotic manipulator and 
 ## Contact
 Alejandro Velasquez  
 velasale@oregonstate.edu  
-PhD Student in Robotics
+Robotics PhD Student
 
 ## Description
 This package takes datasets of apple picks performed with a robotic manipulator UR5e and a robotic gripper as end effector.
