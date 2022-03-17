@@ -14,6 +14,14 @@ Hence, this package is useful for the user to:
 - [x] Obtain statistics about the experiments, such as the distribution of cartesian and angular noise.
 - [x] Do basic machine learning to check if - with the given data - it is possible to train a classifier and predict the outcome of the pick (e.g. successful, failed).
 
+For brief usage instructions, type:
+
+```html
+$ python compare_pics.py --help
+$ python machine_learning.py --help
+$ python metadata_stats.py --help 
+```
+
 
 ## Examples
 ### module: compare_picks.py
