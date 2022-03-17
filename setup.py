@@ -7,7 +7,7 @@ setuptools.setup(
     name="pickApp",
     version="0.0.1",
     author="Alejandro Velasquez",
-    author_email="velasale@oreognstate.edu",
+    author_email="velasale@oregonstate.edu",
     description="Real and Proxy apple picks experiments",
     long_description=long_description,
     long_description_content_type="text/markdown",

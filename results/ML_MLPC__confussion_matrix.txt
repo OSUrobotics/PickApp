@@ -1,8 +1,8 @@
 
 Classifier: Multi Layer Perceptron
-Best Accuracy: 0.77
+Best Accuracy: 0.75
 Confusion Matrix
                   Reference      
 Prediction    Success     Failure
-   Success       69          25
-   Failure       6          33
+   Success       65          23
+   Failure       10          35
