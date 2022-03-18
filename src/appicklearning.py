@@ -36,7 +36,8 @@ def rfc(experiments, depth, n_features):
     print("Running RFC...")
 
     # --- Features location
-    location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/improved data/grasp/Data_with_33_cols/postprocess_4_for_tsfresh/'
+    # location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/improved data/grasp/Data_with_33_cols/postprocess_4_for_tsfresh/'
+    location = os.path.dirname(os.getcwd()) + '/data/features/'
     experiment = 'RFC with ' + 'TS-fresh features'
 
     # --- Train data
