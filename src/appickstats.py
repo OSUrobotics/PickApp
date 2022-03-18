@@ -19,7 +19,8 @@ class MetadataStats:
 
     def __init__(self):
 
-        self.main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
+        # self.main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
+        self.main = os.path.dirname(os.getcwd()) + '/data/datasets/'
         self.dataset = '3_proxy_winter22_x1'
         self.location = self.main + self.dataset + '/metadata/'
 
