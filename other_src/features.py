@@ -124,7 +124,7 @@ def tsfresh_example():
     print('Length: ', len(y))
     print('Data: \n', y)
 
-    # ---- Extract Features ---- #
+    # ---- Extract features ---- #
     X = extract_features(timeseries, column_id="id", column_sort="time")
     impute(X)
     X_filtered = select_features(X, y)
