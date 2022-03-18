@@ -83,13 +83,12 @@ I recommend installing the following packages:
 - [x] Math/Stat related: numpy, scipy, dtw
 - [x] Machine Learning related: sklearn
 
-### Choice 1:
-Install form PyPI
+### Choice 1: Install from PyPI
 ```
 pip install pickApp
 ```
 
-### Choice 2: 
+### Choice 2: Download
 Download the repo, and run the following code
 ```html
 python setup.py install
