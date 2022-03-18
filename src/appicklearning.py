@@ -35,8 +35,9 @@ def rfc(experiments, depth, n_features):
 
     print("Running RFC...")
 
-    # --- Features location
-    location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/improved data/grasp/Data_with_33_cols/postprocess_4_for_tsfresh/'
+    # --- features location
+    # location = 'C:/Users/15416/PycharmProjects/PickApp/data/Real Apples Data/improved data/grasp/Data_with_33_cols/postprocess_4_for_tsfresh/'
+    location = os.path.dirname(os.getcwd()) + '/data/features/'
     experiment = 'RFC with ' + 'TS-fresh features'
 
     # --- Train data
@@ -254,7 +255,7 @@ def mlpc(experiments, n_features):
     fig, ax = plt.subplots()
     ax.boxplot(results)
     plt.ylabel('Accuracy')
-    plt.xlabel('Number of Features')
+    plt.xlabel('Number of features')
     plt.grid()
     plt.title('%s + %i experiments )' % (experiment, experiments))
     plt.ylim([0, 1])

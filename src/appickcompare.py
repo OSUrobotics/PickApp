@@ -611,7 +611,8 @@ def main():
     phase = args.phase
 
     # --- Data Location ---
-    main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
+    main = os.path.dirname(os.getcwd()) + '/data/datasets/'
+    # main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
     datasets = ['3_proxy_winter22_x1', '5_real_fall21_x1']
     subfolder = '/metadata/'
 

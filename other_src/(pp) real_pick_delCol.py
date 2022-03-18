@@ -19,7 +19,7 @@ experiments = 10
 maxdepth = 10
 
 
-# Autoencoder Features (from pickle Files)
+# Autoencoder features (from pickle Files)
 # Location of the Real-Apple data already split and downsampled
 # location = 'C:/Users/15416/PycharmProjects\PickApp\data\Real Apples Data/real_data_stage1/'
 
