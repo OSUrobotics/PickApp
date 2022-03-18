@@ -1,0 +1,2 @@
+stem_orientation,f0_proximal,f0_distal,f1_proximal,f1_distal,f2_proximal,f2_distal,slip,drop,stem_moved,success_or_failure,apple_x,apple_y,apple_z,hand_ideal_starting_pos_x,hand_ideal_starting_pos_y,hand_ideal_starting_pos_z,noise_x,noise_y,noise_z,hand_init_yaw,hand_init_pitch,hand_init_roll,noise_yaw,noise_pitch,noise_roll
+apple_proxy,1,1,0,0,0,1,y,n,y,f,0.41,-0.115,0.455,0,0,0,0.0125,0.0125,-0.00575,0,0,0,-1.056197151842627,-0.34123947604981497,1.1075978478363253,0,0,0,0,0
