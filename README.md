@@ -83,6 +83,9 @@ I recommend installing the following packages:
 - [x] Math/Stat related: numpy, scipy, dtw
 - [x] Machine Learning related: sklearn
 
+### Data
+Download the data subfolder, which includes all the features, metadata, and data from real and proxy domains picks
+
 ### Choice 1: Install from PyPI
 ```
 pip install pickApp
