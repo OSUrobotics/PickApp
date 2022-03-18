@@ -73,13 +73,22 @@ Mean: 0.0SD: 0.0Percentiles: [0. 0. 0.]
 
 
 ## Installation
-### Choice 1:
-Install form PyPI
+
+### Dependencies
+I recommend installing the following packages:
+- [x] System related: os, sys
+- [x] User Interface related: tqdm, argparse
+- [x] Data related: csv, pandas, collections, ast
+- [x] Plots related: matplotlib, seaborn
+- [x] Math/Stat related: numpy, scipy, dtw
+- [x] Machine Learning related: sklearn
+
+### Choice 1: Install from PyPI
 ```
 pip install pickApp
 ```
 
-### Choice 2: 
+### Choice 2: Download
 Download the repo, and run the following code
 ```html
 python setup.py install
