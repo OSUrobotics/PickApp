@@ -54,7 +54,6 @@ main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
 dataset = '4_proxy_winter22_x5/'
 
 metadata_loc = main + dataset + 'metadata/'
-
 success_list, failed_list = labeled_lists(metadata_loc)
 
 print('There are %i experiments with failed apple-picks' % len(failed_list))
