@@ -9,7 +9,7 @@ from numpy import genfromtxt
 import math
 import statistics as st
 import matplotlib.pyplot as plt
-from statistics import mean
+from statistics import mean, stdev
 import pandas as pd
 from tqdm import tqdm
 import csv
@@ -19,16 +19,23 @@ def check_size(source):
 
     lowest = 10000
     highest = 0
+    sizes = []
     for filename in tqdm(os.listdir(source)):
 
         data = pd.read_csv(source + filename)
         n_samples = data.shape[0]
+        sizes.append(n_samples)
 
         if n_samples < lowest:
             lowest = n_samples
 
         if n_samples > highest:
             highest = n_samples
+
+    title = "Lowest= " + str(lowest) + " / Highest= " + str(highest) + " / Mean=" + str(round(mean(sizes),2)) + " / SD= " + str(round(stdev(sizes),2))
+    plt.title(title)
+    plt.boxplot(sizes)
+    plt.show()
 
     return lowest, highest
 
@@ -157,8 +164,8 @@ def main():
     # (pp) real_pick_delCol.py
 
     main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
-    dataset = '3_proxy_winter22_x1/'
-    # dataset = '5_real_fall21_x1/'
+    # dataset = '3_proxy_winter22_x1/'
+    dataset = '5_real_fall21_x1/'
     # dataset = '1_proxy_rob537_x1/'
     stages = ['GRASP/', 'PICK/']
 
@@ -176,7 +183,7 @@ def main():
         # down_sample(period, location_1, location_2)
 
         # --- Step 5: Crop Data ---
-        # l, h = check_size(location_2)
+        l, h = check_size(location_2)
         # print(dataset, stage, l, h)
         if stage == 'GRASP/':
             size = 106
@@ -190,20 +197,20 @@ def main():
     # (pp) csv_joiner.py
     metadata_loc = main + dataset + 'metadata/'
 
-    for filename in tqdm(sorted(os.listdir(metadata_loc))):
-
-        # Get the basic name
-        name = str(filename)
-        start = name.index('app')
-        end = name.index('m')
-        name = name[start:end]
-        # print(name)
-
-        for stage in stages:
-            location = main + dataset + stage
-            location_3 = location + 'new_pp3_cropped/'
-            location_4 = location + 'new_pp4_joined/'
-            join_csv(name, stage, location_3, location_4)
+    # for filename in tqdm(sorted(os.listdir(metadata_loc))):
+    #
+    #     # Get the basic name
+    #     name = str(filename)
+    #     start = name.index('app')
+    #     end = name.index('m')
+    #     name = name[start:end]
+    #     # print(name)
+    #
+    #     for stage in stages:
+    #         location = main + dataset + stage
+    #         location_3 = location + 'new_pp3_cropped/'
+    #         location_4 = location + 'new_pp4_joined/'
+    #         join_csv(name, stage, location_3, location_4)
 
 
     # --- Step 7: Augment Data ---
