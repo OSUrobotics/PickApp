@@ -1,8 +1,6 @@
 # @Time : 4/7/2022 11:15 AM
 # @Author : Alejandro Velasquez
 
-from sklearn.utils import resample
-
 import os
 import numpy as np
 from numpy import genfromtxt
