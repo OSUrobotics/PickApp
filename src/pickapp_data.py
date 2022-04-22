@@ -205,8 +205,40 @@ def crop_csv(size, source, target):
         cropped_data.to_csv(target + filename, index=False)
 
 
+def noise_injection(data, percentage):
+    """
+    Data augmentation technique that simply adds noise to the signal as a random Gaussian noise
+    :param percent: Percentage of the range (Max - Min) of the signal that would be considered in the noise function
+    :type data: Dataframe
+    :return:
+    """
+
+    channels = data.shape[1]
+
+    df = pd.DataFrame()
+
+    for i in range(channels):
+        channel = data.iloc[:, i]
+
+        # Step 2 - Read min max for each column
+        channel_range = abs(min(channel) - max(channel))
+
+        # Step 3 - Define a % of noise according to that range
+        noise = np.random.normal(0, channel_range * percentage/100, channel.shape)
+        new_signal = channel + noise
+
+        df[i] = new_signal
+
+    # Copy original dataframe header
+    df.columns = data.columns
+
+    return df
+
+
 def main():
+
     # Step 1 - Read Data saved as csvs from bagfiles
+
     # Step 2 - Split the data into Grasp and Pick
     # (pp) grasp_and_pick_split.py
 
@@ -219,17 +251,17 @@ def main():
     # dataset = '1_proxy_rob537_x1/'
     stages = ['GRASP/', 'PICK/']
 
-    for stage in tqdm(stages):
-        location = main + dataset + stage
-        location_1 = location + 'pp1_split/'
-        location_2 = location + 'new_pp2_downsampled/'
-
-        # --- Step 4: Down sample Data ---
-        period = 15  # Sampling period in [ms]
-        # down_sample(period, location_1, location_2)
-
-        # --- Step 5: Check sizes ---
-        # check_size(location_2)
+    # for stage in tqdm(stages):
+    #     location = main + dataset + stage
+    #     location_1 = location + 'pp1_split/'
+    #     location_2 = location + 'new_pp2_downsampled/'
+    #
+    #     # --- Step 4: Down sample Data ---
+    #     period = 15  # Sampling period in [ms]
+    #     # down_sample(period, location_1, location_2)
+    #
+    #     # --- Step 5: Check sizes ---
+    #     # check_size(location_2)
 
     # --- Step 6: Join Data ---
     # Here we want to end up with a list the size of the medatadafiles
@@ -237,40 +269,56 @@ def main():
     # (pp) csv_joiner.py
     metadata_loc = main + dataset + 'metadata/'
 
-    for filename in tqdm(sorted(os.listdir(metadata_loc))):
-
-        # Get the basic name
-        name = str(filename)
-
-        if dataset == '1_proxy_rob537_x1/':
-            start = name.index('app')
-            end = name.index('k')
-            end_2 = name.index('m')
-            name = name[start:end + 1] + '_' + name[end + 1:end_2 - 1] + '_'
-
-        elif dataset == '3_proxy_winter22_x1/':
-            start = name.index('app')
-            end = name.index('m')
-            name = name[start:end]
-
-        elif dataset == '5_real_fall21_x1/':
-            start = name.index('r')
-            end = name.index('k')
-            end_2 = name.index('m')
-            name = name[start:end+1] + '_' + name[end + 1:end_2 - 1] + '_'
-
-        print("\nFiles being checked:")
-        print(filename)
-        print(name)
-
-        for stage in stages:
-            print(stage)
-            location = main + dataset + stage
-            location_2 = location + 'new_pp2_downsampled/'
-            location_3 = location + 'new_pp3_joined/'
-            join_csv(name, stage, location_2, location_3)
+    # for filename in tqdm(sorted(os.listdir(metadata_loc))):
+    #
+    #     # Get the basic name
+    #     name = str(filename)
+    #
+    #     if dataset == '1_proxy_rob537_x1/':
+    #         start = name.index('app')
+    #         end = name.index('k')
+    #         end_2 = name.index('m')
+    #         name = name[start:end + 1] + '_' + name[end + 1:end_2 - 1] + '_'
+    #
+    #     elif dataset == '3_proxy_winter22_x1/':
+    #         start = name.index('app')
+    #         end = name.index('m')
+    #         name = name[start:end]
+    #
+    #     elif dataset == '5_real_fall21_x1/':
+    #         start = name.index('r')
+    #         end = name.index('k')
+    #         end_2 = name.index('m')
+    #         name = name[start:end+1] + '_' + name[end + 1:end_2 - 1] + '_'
+    #
+    #     print("\nFiles being checked:")
+    #     print(filename)
+    #     print(name)
+    #
+    #     for stage in stages:
+    #         print(stage)
+    #         location = main + dataset + stage
+    #         location_2 = location + 'new_pp2_downsampled/'
+    #         location_3 = location + 'new_pp3_joined/'
+    #         join_csv(name, stage, location_2, location_3)
 
     # --- Step 7: Augment Data ---
+
+    for stage in tqdm(stages):
+        location = main + dataset + stage
+        location_3 = location + 'new_pp3_joined/'
+        location_4 = location + 'new_pp4_augmented/'
+
+        for filename in os.listdir(location_3):
+            print(filename)
+
+            data = pd.read_csv(location_3 + filename)
+            augmentations = 5
+            end = filename.index('.')
+            for i in range(augmentations):
+                augmented_data = noise_injection(data, 2.5)
+                new_name = filename[:end] + "_aug_" + str(i) + ".csv"
+                augmented_data.to_csv(location_4 + new_name, index=False)
 
     # Step 6 - Do Data Augmentation by adding Noise
     # TODO
