@@ -1,27 +1,7 @@
-# Math related packages
-import numpy as np
-from numpy import random
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.datasets import make_classification
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-# Visualization related packages
-from tqdm import tqdm
-import matplotlib.pyplot as plt
-# Database related packages
-import pandas as pd
 import os
 import csv
+from tqdm import tqdm
 
-
-# Parameters
-experiments = 10
-maxdepth = 10
-
-
-# Autoencoder features (from pickle Files)
-# Location of the Real-Apple data already split and downsampled
-# location = 'C:/Users/15416/PycharmProjects\PickApp\data\Real Apples Data/real_data_stage1/'
 
 main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
 dataset = '5_real_fall21_x1/'
@@ -33,13 +13,12 @@ stage = 'GRASP/'
 location = main + dataset + stage + subfolder
 
 # First delete the columns
-for filename in sorted(os.listdir(location)):
+for filename in tqdm(sorted(os.listdir(location))):
     # print(filename)
 
     name = str(filename)
     var = name[-5]
     print(var)
-
 
     if var == "h":
         # These are WRENCH files, from which we'll delete columns 4 and 8
@@ -58,9 +37,8 @@ for filename in sorted(os.listdir(location)):
                     writer.writerow((r[0], r[1], r[2], r[3], r[5], r[6], r[7]))
 
     if var == "u":
-        # These are IMU files, from which we'll delete columns 4 and 8
+        # These are IMU files, from which we'll delete columns 4
         print(filename)
-
 
         with open(location + filename, "r") as source:
             reader = csv.reader(source)
@@ -75,7 +53,6 @@ for filename in sorted(os.listdir(location)):
                     writer.writerow((r[0], r[1], r[2], r[3], r[5], r[6], r[7]))
 
     if var == "s":
-        # These are JOIN STATES files, from which we'll delete columns 4 and 8
         print(filename)
 
         with open(location + filename, "r") as source:
@@ -88,4 +65,4 @@ for filename in sorted(os.listdir(location)):
                 writer = csv.writer(result)
                 for r in reader:
                     # writer.writerow((r[0], r[1], r[2], r[3]))
-                    writer.writerow((r[1], r[2], r[3]))
+                    writer.writerow((r[0], r[1], r[2], r[3]))
