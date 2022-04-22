@@ -159,10 +159,14 @@ def join_csv(name, case, source, target):
     # print("First and last", benchmark_first, benchmark_last)
 
     count = 0
+
     for channel in dataframes:
         if channel.shape[0] > smallest:
             difference = channel.shape[0] - smallest
             print("The difference is", difference)
+
+            if difference > 5:
+                print("//////////////////////////// WARNING ///////////////////////////")
 
             # Check which points to crop, the initial or last ones
             initial_time_offset = abs(float(channel.iloc[1, 0]) - benchmark_first)
@@ -172,6 +176,7 @@ def join_csv(name, case, source, target):
                 print("Remove initial")
                 for i in range(difference):
                     new_df = channel.drop([1]).reset_index(drop=True)
+                    channel = new_df
             else:
                 print("Remove last")
                 new_df = channel.iloc[:-difference, :]
@@ -179,6 +184,7 @@ def join_csv(name, case, source, target):
             dataframes[count] = new_df
 
         count = count + 1
+
 
     # --- Step 3: Join them all into a single DataFrame and save
     df = pd.concat([dataframes[0].iloc[:, 1:], dataframes[1].iloc[:, 1:], dataframes[2].iloc[:, 1:],
@@ -215,26 +221,17 @@ def main():
     # dataset = '1_proxy_rob537_x1/'
     stages = ['GRASP/', 'PICK/']
 
-    # (pp) downsampler.py
     for stage in tqdm(stages):
         location = main + dataset + stage
         location_1 = location + 'pp1_split/'
         location_2 = location + 'new_pp2_downsampled/'
-        location_3 = location + 'new_pp3_joined/'
-        location_4 = location + 'new_pp4_labeled/'
 
         # --- Step 4: Down sample Data ---
         period = 15  # Sampling period in [ms]
         # down_sample(period, location_1, location_2)
 
-        # --- Step 5: Crop Data ---
-        # l, h = check_size(location_2)
-        # print(dataset, stage, l, h)
-        if stage == 'GRASP/':
-            size = 106
-        elif stage == 'PICK/':
-            size = 115
-        # crop_csv(size, location_2, location_3)
+        # --- Step 5: Check sizes ---
+        # check_size(location_2)
 
     # --- Step 6: Join Data ---
     # Here we want to end up with a list the size of the medatadafiles
@@ -246,9 +243,26 @@ def main():
 
         # Get the basic name
         name = str(filename)
-        start = name.index('app')
-        end = name.index('m')
-        name = name[start:end]
+
+        if dataset == '1_proxy_rob537_x1/':
+            start = name.index('app')
+            end = name.index('k')
+            end_2 = name.index('m')
+            name = name[start:end + 1] + '_' + name[end + 1:end_2 - 1] + '_'
+
+        elif dataset == '3_proxy_winter22_x1/':
+            start = name.index('app')
+            end = name.index('m')
+            name = name[start:end]
+
+        elif dataset == '5_real_fall21_x1/':
+            start = name.index('r')
+            end = name.index('k')
+            end_2 = name.index('m')
+            name = name[start:end+1] + '_' + name[end + 1:end_2 - 1] + '_'
+
+        print("\nFiles being checked:")
+        print(filename)
         print(name)
 
         for stage in stages:
