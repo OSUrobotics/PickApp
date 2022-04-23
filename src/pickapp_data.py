@@ -11,6 +11,7 @@ from statistics import mean, stdev
 import pandas as pd
 from tqdm import tqdm
 import csv
+import shutil
 
 
 def check_size(source):
@@ -47,7 +48,7 @@ def down_sample(period, source, target):
     :return:
     """
 
-    for filename in tqdm(os.listdir(source)):
+    for filename in os.listdir(source):
         # print(filename)
 
         # --- Step 0: Read csv data into a a Pandas Dataframe ---
@@ -161,22 +162,23 @@ def join_csv(name, case, source, target):
     for channel in dataframes:
         if channel.shape[0] > smallest:
             difference = channel.shape[0] - smallest
-            print("The difference is", difference)
+            # print("The difference is", difference)
 
             if difference > 5:
-                print("//////////////////////////// WARNING ///////////////////////////")
+                pass
+                # print("//////////////////////////// WARNING ///////////////////////////")
 
             # Check which points to crop, the initial or last ones
             initial_time_offset = abs(float(channel.iloc[1, 0]) - benchmark_first)
             last_time_offset = abs(float(channel.iloc[-1, 0]) - benchmark_last)
 
             if initial_time_offset > last_time_offset:
-                print("Remove initial")
+                # print("Remove initial")
                 for i in range(difference):
                     new_df = channel.drop([1]).reset_index(drop=True)
                     channel = new_df
             else:
-                print("Remove last")
+                # print("Remove last")
                 new_df = channel.iloc[:-difference, :]
 
             dataframes[count] = new_df
@@ -194,7 +196,7 @@ def join_csv(name, case, source, target):
 
 def crop_csv(size, source, target):
 
-    for filename in tqdm(os.listdir(source)):
+    for filename in os.listdir(source):
 
         data = pd.read_csv(source + filename)
         n_samples = data.shape[0]
@@ -235,6 +237,60 @@ def noise_injection(data, percentage):
     return df
 
 
+def data_into_labeled_folder(dataset, metadata_location, data_source_folder, target_folder):
+
+    for metadata in (os.listdir(metadata_location)):
+
+        # --- Step 1: Get the basic name
+        name = str(metadata)
+
+        if dataset == '1_proxy_rob537_x1/':
+            start = name.index('app')
+            end = name.index('k')
+            end_2 = name.index('m')
+            name = name[start:end + 1] + '_' + name[end + 1:end_2 - 1] + '_'
+
+        elif dataset == '3_proxy_winter22_x1/':
+            start = name.index('app')
+            end = name.index('m')
+            name = name[start:end]
+
+        elif dataset == '5_real_fall21_x1/':
+            start = name.index('r')
+            end = name.index('k')
+            end_2 = name.index('m')
+            name = name[start:end+1] + '_' + name[end + 1:end_2 - 1] + '_'
+
+        # --- Step 2: Read label / result from metadata
+        rows = []
+        with open(metadata_location + metadata) as csv_file:
+            # Create a csv object
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            # Extract each data row one by one
+            for row in csv_reader:
+                rows.append(row)
+            # Read the label
+            if rows[1][10] == 's':
+                sub_folder = 'success/'
+            else:
+                sub_folder = 'failed/'
+
+        # --- Step 3: S
+
+        for filename in os.listdir(data_source_folder):
+
+            data_name = str(filename)
+            end = data_name.index("__")
+            data_name = data_name[:end+1]
+
+            if name == data_name:
+                # print("Meta and data names:", name, data_name)
+                # print("\n\n\n\n\n\n\nMatch!")
+                source = data_source_folder + filename
+                target = target_folder + sub_folder +  filename
+                shutil.copy(source, target)
+
+
 def main():
 
     # Step 1 - Read Data saved as csvs from bagfiles
@@ -246,19 +302,23 @@ def main():
     # (pp) real_pick_delCol.py
 
     main = 'C:/Users/15416/Box/Learning to pick fruit/Apple Pick Data/RAL22 Paper/'
+
     dataset = '3_proxy_winter22_x1/'
     # dataset = '5_real_fall21_x1/'
     # dataset = '1_proxy_rob537_x1/'
+
     stages = ['GRASP/', 'PICK/']
 
-    # for stage in tqdm(stages):
-    #     location = main + dataset + stage
-    #     location_1 = location + 'pp1_split/'
-    #     location_2 = location + 'new_pp2_downsampled/'
-    #
-    #     # --- Step 4: Down sample Data ---
-    #     period = 15  # Sampling period in [ms]
-    #     # down_sample(period, location_1, location_2)
+    print("Downsampling...")
+    for stage in tqdm(stages):
+        location = main + dataset + stage
+        location_1 = location + 'pp1_split/'
+        location_2 = location + 'new_pp2_downsampled/'
+
+        # --- Step 4: Down sample Data ---
+        period = 15  # Sampling period in [ms]
+
+        down_sample(period, location_1, location_2)
     #
     #     # --- Step 5: Check sizes ---
     #     # check_size(location_2)
@@ -269,62 +329,72 @@ def main():
     # (pp) csv_joiner.py
     metadata_loc = main + dataset + 'metadata/'
 
-    # for filename in tqdm(sorted(os.listdir(metadata_loc))):
-    #
-    #     # Get the basic name
-    #     name = str(filename)
-    #
-    #     if dataset == '1_proxy_rob537_x1/':
-    #         start = name.index('app')
-    #         end = name.index('k')
-    #         end_2 = name.index('m')
-    #         name = name[start:end + 1] + '_' + name[end + 1:end_2 - 1] + '_'
-    #
-    #     elif dataset == '3_proxy_winter22_x1/':
-    #         start = name.index('app')
-    #         end = name.index('m')
-    #         name = name[start:end]
-    #
-    #     elif dataset == '5_real_fall21_x1/':
-    #         start = name.index('r')
-    #         end = name.index('k')
-    #         end_2 = name.index('m')
-    #         name = name[start:end+1] + '_' + name[end + 1:end_2 - 1] + '_'
-    #
-    #     print("\nFiles being checked:")
-    #     print(filename)
-    #     print(name)
-    #
-    #     for stage in stages:
-    #         print(stage)
-    #         location = main + dataset + stage
-    #         location_2 = location + 'new_pp2_downsampled/'
-    #         location_3 = location + 'new_pp3_joined/'
-    #         join_csv(name, stage, location_2, location_3)
+    print("\nJoining topics into a single csv...")
+    for filename in tqdm(sorted(os.listdir(metadata_loc))):
+
+        # Get the basic name
+        name = str(filename)
+
+        if dataset == '1_proxy_rob537_x1/':
+            start = name.index('app')
+            end = name.index('k')
+            end_2 = name.index('m')
+            name = name[start:end + 1] + '_' + name[end + 1:end_2 - 1] + '_'
+
+        elif dataset == '3_proxy_winter22_x1/':
+            start = name.index('app')
+            end = name.index('m')
+            name = name[start:end]
+
+        elif dataset == '5_real_fall21_x1/':
+            start = name.index('r')
+            end = name.index('k')
+            end_2 = name.index('m')
+            name = name[start:end+1] + '_' + name[end + 1:end_2 - 1] + '_'
+
+        # print("\nFiles being checked:")
+        # print(filename)
+        # print(name)
+
+        for stage in stages:
+            # print(stage)
+            location = main + dataset + stage
+            location_2 = location + 'new_pp2_downsampled/'
+            location_3 = location + 'new_pp3_joined/'
+            join_csv(name, stage, location_2, location_3)
 
     # --- Step 7: Augment Data ---
-
+    print("\nAugmenting data...")
     for stage in tqdm(stages):
         location = main + dataset + stage
         location_3 = location + 'new_pp3_joined/'
         location_4 = location + 'new_pp4_augmented/'
 
         for filename in os.listdir(location_3):
-            print(filename)
+            # print(filename)
 
             data = pd.read_csv(location_3 + filename)
             augmentations = 5
             end = filename.index('.')
             for i in range(augmentations):
-                augmented_data = noise_injection(data, 2.5)
+                augmented_data = noise_injection(data, 5)
                 new_name = filename[:end] + "_aug_" + str(i) + ".csv"
                 augmented_data.to_csv(location_4 + new_name, index=False)
 
-    # Step 6 - Do Data Augmentation by adding Noise
-    # TODO
+    # --- Step 8: Save csvs in subfolders labeled ---
+    print("\nSaving data in labeled folders...")
+    for stage in tqdm(stages):
+        location = main + dataset + stage
 
-    # Step 7 - Save csvs in subfolders labeled
-    # (pp) data_into_labeled_folder.py
+        if dataset in ['1_proxy_rob537_x1/', '3_proxy_winter22_x1/']:
+            location_4 = location + 'new_pp4_augmented/'
+        elif dataset == '5_real_fall21_x1/':
+            location_4 = location + 'new_pp3_joined/'
+
+        location_5 = location + 'new_pp5_labeled/'
+        metadata_loc = main + dataset + 'metadata/'
+
+        data_into_labeled_folder(dataset, metadata_loc, location_4, location_5)
 
 
 if __name__ == '__main__':
