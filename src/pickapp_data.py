@@ -300,6 +300,48 @@ def data_into_labeled_folder(dataset, metadata_location, data_source_folder, tar
                 shutil.copy(source, target)
 
 
+def create_sets(source, target, training size):
+
+    # Make sure that the augmented data is not divided into training and testing set, otherwise the testing wouldn't
+    # take place with unseen data.
+
+    # Define the ratio of training and testing set
+
+    # Keep same success / failed ratio from data at both sets.
+
+    # --- Step 1: Sweep the data without being augmented
+
+    # --- Step 2: Define its destination folder according to the probability
+
+    # --- Step 3: Then move all the data augmented from that pick (both GRASP and PICK) into either the training or
+    # testing set
+    # Randomly sample the data into the training set and testing set
+    labels = ['successful/', 'failed/']
+    location = 'C:/Users/15416/PycharmProjects/PickApp/data_postprocess3 (only grasp_downsampled_ joined)/'
+
+    for label in labels:
+
+        for file in os.listdir(location + label):
+
+            coin = random.random()
+            print(coin)
+
+            if coin < 0.701:
+                # Save file in the training set sub-folder
+                target = 'C:/Users/15416/PycharmProjects/PickApp/data_postprocess4 (train and test set)/training_set (70%)/'
+
+
+            else:
+                # Save file in the testing set sub-folder
+                target = 'C:/Users/15416/PycharmProjects/PickApp/data_postprocess4 (train and test set)/testing_set (30%)/'
+
+            original = location + label + file
+            target = target + label + file
+
+            shutil.copy(original, target)
+
+
+
 def main():
 
     # Step 1 - Read Data saved as csvs from bagfiles
@@ -405,6 +447,14 @@ def main():
         metadata_loc = main + dataset + 'metadata/'
 
         data_into_labeled_folder(dataset, metadata_loc, location_4, location_5)
+
+
+    # --- Step 9: Sparse data in the training and testing set
+    print("\nSparsing data in training and testing sets...")
+    location_6 =
+    location_7 =
+    training_size =
+    create_sets(location_6, location_7, training_size)
 
 
 if __name__ == '__main__':
