@@ -326,7 +326,7 @@ def create_sets(source, target, training size):
             coin = random.random()
             print(coin)
 
-            if coin < 0.701:
+            if coin < training_size:
                 # Save file in the training set sub-folder
                 target = 'C:/Users/15416/PycharmProjects/PickApp/data_postprocess4 (train and test set)/training_set (70%)/'
 
