@@ -2,8 +2,8 @@
 # @Author : Alejandro Velasquez
 
 import math
-from src.appickcompare import number_from_filename, crossings, topic_from_variable
-from src.appickcompare import agg_linear_trend
+from src.pickapp_compare import number_from_filename, crossings, topic_from_variable
+from src.pickapp_compare import agg_linear_trend
 
 
 def test_number_from_filename():
