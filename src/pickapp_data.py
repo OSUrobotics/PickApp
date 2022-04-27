@@ -1,5 +1,8 @@
 # @Time : 4/7/2022 11:15 AM
 # @Author : Alejandro Velasquez
+"""
+This script performs the data post-processing, before feeding it into any machine learning algorithm
+"""
 
 import os
 import numpy as np
