@@ -12,6 +12,7 @@ import pandas as pd
 from tqdm import tqdm
 import csv
 import shutil
+import random
 
 
 def check_size(source):
@@ -300,46 +301,66 @@ def data_into_labeled_folder(dataset, metadata_location, data_source_folder, tar
                 shutil.copy(source, target)
 
 
-def create_sets(source, target, training size):
+def create_sets(main, dataset, training_size):
+    """
+    Distributes the data in a Training and Testing set, by keeping the same label ratios
+    :param main:
+    :param dataset:
+    :param training_size: Size of training set from 0 to 1, the remaining goes to the test set
+    :return:
+    """
 
     # Make sure that the augmented data is not divided into training and testing set, otherwise the testing wouldn't
     # take place with unseen data.
 
-    # Define the ratio of training and testing set
 
-    # Keep same success / failed ratio from data at both sets.
+    # stages = ['GRASP/', 'PICK/']
+    labels = ['failed/', 'success/']
+    augmented_folders = ['augmented x5/', 'augmented x10/', 'augmented x20/']
 
-    # --- Step 1: Sweep the data without being augmented
+    for augmented_folder in augmented_folders:
 
-    # --- Step 2: Define its destination folder according to the probability
+        for label in labels:
 
-    # --- Step 3: Then move all the data augmented from that pick (both GRASP and PICK) into either the training or
-    # testing set
-    # Randomly sample the data into the training set and testing set
-    labels = ['successful/', 'failed/']
-    location = 'C:/Users/15416/PycharmProjects/PickApp/data_postprocess3 (only grasp_downsampled_ joined)/'
+            grasp_source_location = main + dataset + 'GRASP/' + 'new_pp5_labeled/' + augmented_folder + label
+            pick_source_location = main + dataset + 'PICK/' + 'new_pp5_labeled/' + augmented_folder + label
 
-    for label in labels:
+            previous_name = ''
+            for filename in os.listdir(grasp_source_location):
 
-        for file in os.listdir(location + label):
+                # print(filename)
+                name = str(filename)
+                end = name.index('grasp')
+                name = name[:end]
+                # print(name)
 
-            coin = random.random()
-            print(coin)
+                if name != previous_name:
+                    # Check name with previous, if different, flip coin
+                    coin = random.random()
+                    print(coin)
 
-            if coin < training_size:
-                # Save file in the training set sub-folder
-                target = 'C:/Users/15416/PycharmProjects/PickApp/data_postprocess4 (train and test set)/training_set (70%)/'
+                    if coin < training_size:
+                        grasp_target_location = main + dataset + 'GRASP/' + 'new_pp6_sets/' + augmented_folder + 'training set/' + label
+                        pick_target_location = main + dataset + 'PICK/' + 'new_pp6_sets/' + augmented_folder + 'training set/' + label
+                    else:
+                        grasp_target_location = main + dataset + 'GRASP/' + 'new_pp6_sets/' + augmented_folder + 'testing set/' + label
+                        pick_target_location = main + dataset + 'PICK/' + 'new_pp6_sets/' + augmented_folder + 'testing set/' + label
 
+                    previous_name = name
+                    # print(previous_name)
+                else:
+                    pass
 
-            else:
-                # Save file in the testing set sub-folder
-                target = 'C:/Users/15416/PycharmProjects/PickApp/data_postprocess4 (train and test set)/testing_set (30%)/'
+                # --- Move data from the Grasp ---
+                original = grasp_source_location + filename
+                target = grasp_target_location + filename
+                shutil.copy(original, target)
 
-            original = location + label + file
-            target = target + label + file
-
-            shutil.copy(original, target)
-
+                # And from the Pick
+                filename = filename.replace('grasp', 'pick')
+                original = pick_source_location + filename
+                target = pick_target_location + filename
+                shutil.copy(original, target)
 
 
 def main():
@@ -360,7 +381,7 @@ def main():
 
     stages = ['GRASP/', 'PICK/']
 
-    print("\nDownsampling...")
+    print("\nStep 1: Downsampling...")
     # for stage in tqdm(stages):
     #     location = main + dataset + stage
     #     location_1 = location + 'pp1_split/'
@@ -380,7 +401,7 @@ def main():
     # (pp) csv_joiner.py
     metadata_loc = main + dataset + 'metadata/'
 
-    print("\nJoining topics into a single csv...")
+    print("\nStep 2: Joining topics into a single csv...")
     # for filename in tqdm(sorted(os.listdir(metadata_loc))):
     #
     #     # Get the basic name
@@ -416,45 +437,45 @@ def main():
 
     # --- Step 7: Augment Data ---
 
-    print("\nAugmenting data...")
-    for stage in tqdm(stages):
-        location = main + dataset + stage
-        location_3 = location + 'new_pp3_joined/'
-        location_4 = location + 'new_pp4_augmented/augmented x20/'
-
-        for filename in os.listdir(location_3):
-            # print(filename)
-
-            data = pd.read_csv(location_3 + filename)
-            augmentations = 20
-            end = filename.index('.')
-            for i in range(augmentations):
-                augmented_data = noise_injection(data, augmentations)
-                new_name = filename[:end] + "_aug_" + str(i) + ".csv"
-                augmented_data.to_csv(location_4 + new_name, index=False)
+    print("\n Step 3: Augmenting data...")
+    # for stage in tqdm(stages):
+    #     location = main + dataset + stage
+    #     location_3 = location + 'new_pp3_joined/'
+    #     location_4 = location + 'new_pp4_augmented/augmented x20/'
+    #
+    #     for filename in os.listdir(location_3):
+    #         # print(filename)
+    #
+    #         data = pd.read_csv(location_3 + filename)
+    #         augmentations = 20
+    #         end = filename.index('.')
+    #         for i in range(augmentations):
+    #             augmented_data = noise_injection(data, augmentations)
+    #             new_name = filename[:end] + "_aug_" + str(i) + ".csv"
+    #             augmented_data.to_csv(location_4 + new_name, index=False)
 
     # --- Step 8: Save csvs in subfolders labeled ---
-    print("\nSaving data in labeled folders...")
-    for stage in tqdm(stages):
-        location = main + dataset + stage
 
-        if dataset in ['1_proxy_rob537_x1/', '3_proxy_winter22_x1/']:
-            location_4 = location + 'new_pp4_augmented/augmented x20/'
-        elif dataset == '5_real_fall21_x1/':
-            location_4 = location + 'new_pp3_joined/'
-
-        location_5 = location + 'new_pp5_labeled/augmented x20/'
-        metadata_loc = main + dataset + 'metadata/'
-
-        data_into_labeled_folder(dataset, metadata_loc, location_4, location_5)
+    print("\nStep 4: Saving data in labeled folders...")
+    # for stage in tqdm(stages):
+    #     location = main + dataset + stage
+    #
+    #     if dataset in ['1_proxy_rob537_x1/', '3_proxy_winter22_x1/']:
+    #         location_4 = location + 'new_pp4_augmented/augmented x20/'
+    #     elif dataset == '5_real_fall21_x1/':
+    #         location_4 = location + 'new_pp3_joined/'
+    #
+    #     location_5 = location + 'new_pp5_labeled/augmented x20/'
+    #     metadata_loc = main + dataset + 'metadata/'
+    #
+    #     data_into_labeled_folder(dataset, metadata_loc, location_4, location_5)
 
 
     # --- Step 9: Sparse data in the training and testing set
-    print("\nSparsing data in training and testing sets...")
-    location_6 =
-    location_7 =
-    training_size =
-    create_sets(location_6, location_7, training_size)
+
+    print("\nStep 5: Sparsing data in training and testing sets...")
+    training_size = 0.7
+    create_sets(main, dataset, training_size)
 
 
 if __name__ == '__main__':
