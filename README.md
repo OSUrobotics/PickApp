@@ -17,9 +17,10 @@ Hence, this package is useful for the user to:
 For brief usage instructions, type:
 
 ```html
-$ python appickcompare.py --help
-$ python appicklearning.py --help
-$ python appickstats.py --help 
+$ python pickapp_compare.py --help
+$ python pickapp_learning.py --help
+$ python pickapp_stats.py --help
+$ python pickapp_data-py --help
 ```
 
 
