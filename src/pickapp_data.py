@@ -17,7 +17,8 @@ import csv
 import shutil
 import random
 
-# trial
+# trial 2
+
 def check_size(source):
 
     lowest = 10000
